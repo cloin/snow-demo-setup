@@ -1,0 +1,90 @@
+---
+- name: configure SNOW user for demo environment
+  hosts: 127.0.0.1
+  connection: local
+  become: false
+
+  vars:
+    username: 
+    password: 
+    instance: 
+    demo_password: 
+    cleanup: false
+
+  tasks:
+
+  - set_fact:
+      first_name: "{{ ['Craig','Dafne','Nuno','Roger','Monish','Anshul','Hicham','Sean','Andrius','Tom','Colin'] | random }}"
+      random_number: "{{ 999 | random }}{{ ansible_date_time.epoch }}"
+
+        #  - set_fact:
+        #      random_user: "{{ first_name }}_{{ random_number }}"
+
+  - name: create user
+    uri:
+      url: "https://{{ instance }}.service-now.com/api/now/table/sys_user?sysparm_input_display_value=true" 
+      method: POST
+      user: "{{ username }}"
+      password: "{{ password }}"
+      force_basic_auth: yes
+      headers:
+        Content-Type: application/json
+      body_format: json
+      body:
+        user_name: "{{ random_user }}"
+        user_password: "{{ demo_password }}" 
+        first_name: "{{ first_name }}"
+        last_name: Demouser
+        department: IT
+        email: "{{ random_user }}@example.com"
+        title: instruqt_demo
+      status_code: 201
+    register: user_create
+    when: not cleanup
+
+  - name: attach role to new user
+    uri:
+      url: "https://{{ instance }}.service-now.com/api/now/table/sys_user_has_role" 
+      method: POST
+      user: "{{ username }}"
+      password: "{{ password }}"
+      force_basic_auth: yes
+      headers:
+        Content-Type: application/json
+      body_format: json
+      body:
+        user: "{{ random_user }}"
+        role: Demo
+      status_code: 201
+    register: user_role
+    when: not cleanup
+
+  - name: find user sys_id
+    uri:
+      url: "https://{{ instance }}.service-now.com/api/now/table/sys_user?sysparm_query=user_name={{ random_user }}" 
+      method: GET
+      user: "{{ username }}"
+      password: "{{ password }}"
+      force_basic_auth: yes
+      headers:
+        Content-Type: application/json
+      status_code: 200
+    register: user_info
+    when: cleanup
+
+  - set_fact:
+      user_info_paths: "{{ lookup('ansible.utils.to_paths', user_info) }}"
+
+  - name: cleanup user
+    uri:
+      url: "https://{{ instance }}.service-now.com/api/now/table/sys_user/{{ user_info_paths['json.result[0].sys_id'] }}" 
+      method: DELETE
+      user: "{{ username }}"
+      password: "{{ password }}"
+      force_basic_auth: yes
+      headers:
+        Content-Type: application/json
+      status_code: 204
+    register: user_delete
+    when: cleanup
+
