@@ -78,7 +78,7 @@
       when: cleanup
 
     - set_fact:
-      user_info_paths: "{{ lookup('ansible.utils.to_paths', user_info) }}"
+        user_info_paths: "{{ lookup('ansible.utils.to_paths', user_info) }}"
 
     - name: cleanup user
       uri:
@@ -106,4 +106,4 @@
           Content-Type: application/json
         status_code: 204
       register: user_delete
-      when: cleanup
+
