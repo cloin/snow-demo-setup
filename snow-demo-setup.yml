@@ -93,7 +93,7 @@
       register: user_delete
       when: cleanup
 
-  rescue:
+    rescue:
 
     - name: cleanup user
       uri:
