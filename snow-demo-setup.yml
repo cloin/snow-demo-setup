@@ -13,6 +13,9 @@
 
     # password to use for new user account
     demo_password: 
+    
+    # role to attach to user - needs to be a valid role defined in servicenow
+    role:
 
     # whether or not this playbook run will create or cleanup the user account
     cleanup: false
@@ -59,7 +62,7 @@
         body_format: json
         body:
           user: "{{ random_user }}"
-          role: Demo
+          role: "{{ role }}"
         status_code: 201
       register: user_role
       when: not cleanup
