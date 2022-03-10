@@ -15,7 +15,7 @@
     demo_password: 
     
     # role to attach to user - needs to be a valid role defined in servicenow
-    role:
+    role: Demo
 
     # whether or not this playbook run will create or cleanup the user account
     cleanup: false
