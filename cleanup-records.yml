@@ -11,7 +11,7 @@
   - name: find incidents created by user
     servicenow.itsm.incident_info:
       query:
-        - caller: = "{{ demo_username }}"
+        - sys_created_by: = "{{ demo_username }}"
     register: userIncidents
 
   - name: dump incidents
