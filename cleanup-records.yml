@@ -1,0 +1,19 @@
+---
+- name: clean up created incidents
+  hosts: localhost
+  connection: local
+  become: false
+  vars:
+    demo_username:
+
+  tasks:
+
+  - name: find incidents created by user
+    servicenow.itsm.incident_info:
+      query:
+        - caller: = "{{ demo_username }}"
+    register: userIncidents
+
+  - name: dump incidents
+    debug:
+      var: userIncidents
