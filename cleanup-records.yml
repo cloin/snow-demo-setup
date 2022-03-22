@@ -52,6 +52,7 @@
       number: "{{ item.number }}"
     with_items: "{{ userChangeRequests.records }}"
     when: userChangeRequests is defined
+    ignore_errors: true
 
   - name: close user created problems
     servicenow.itsm.problem:
@@ -71,6 +72,7 @@
       close_notes: "Closed with ansible servicenow.itsm"
     with_items: "{{ userIncidents.records }}"
     when: userIncidents is defined
+    ignore_errors: true
 
   # - name: remove user created configuration items
   #   servicenow.itsm.configuration_item:
