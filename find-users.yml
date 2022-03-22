@@ -25,4 +25,5 @@
 
   - name: dump users
     debug:
-      var: users
+      var: item.user_name
+    with_items: "{{ users.json.result }}"
