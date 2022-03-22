@@ -44,14 +44,14 @@
         - sys_created_by: LIKE {{ demo_username }}
     register: userConfigItems
 
-  - name: close user created incidents
-    servicenow.itsm.incident:
+  - name: close user created change requests
+    servicenow.itsm.configuration_item:
       state: closed
-      number: "{{ item.number }}"
-      close_code: "Solved (Permanently)"
+      close_code: "successful"
       close_notes: "Closed with ansible servicenow.itsm"
-    with_items: "{{ userIncidents.records }}"
-    when: userIncidents is defined
+      number: "{{ item.number }}"
+    with_items: "{{ userChangeRequests.records }}"
+    when: userChangeRequests is defined
 
   - name: close user created problems
     servicenow.itsm.problem:
@@ -63,14 +63,14 @@
     when: userProblems is defined
     ignore_errors: true
 
-  - name: close user created change requests
-    servicenow.itsm.configuration_item:
+  - name: close user created incidents
+    servicenow.itsm.incident:
       state: closed
-      close_code: "successful"
-      close_notes: "Closed with ansible servicenow.itsm"
       number: "{{ item.number }}"
-    with_items: "{{ userChangeRequests.records }}"
-    when: userChangeRequests is defined
+      close_code: "Solved (Permanently)"
+      close_notes: "Closed with ansible servicenow.itsm"
+    with_items: "{{ userIncidents.records }}"
+    when: userIncidents is defined
 
   # - name: remove user created configuration items
   #   servicenow.itsm.configuration_item:
