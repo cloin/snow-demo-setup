@@ -61,6 +61,7 @@
       fix_notes: "Closed with ansible servicenow.itsm" 
     with_items: "{{ userProblems.records }}"
     when: userProblems is defined
+    ignore_errors: true
 
   - name: close user created change requests
     servicenow.itsm.configuration_item:
@@ -71,9 +72,9 @@
     with_items: "{{ userChangeRequests.records }}"
     when: userChangeRequests is defined
 
-  - name: remove user created configuration items
-    servicenow.itsm.configuration_item:
-      sys_id: "{{ item.sys_id }}"
-      state: absent
-    with_items: "{{ userConfigItems.record }}"
-    when: userConfigItems is defined
+  # - name: remove user created configuration items
+  #   servicenow.itsm.configuration_item:
+  #     sys_id: "{{ item.sys_id }}"
+  #     state: absent
+  #   with_items: "{{ userConfigItems.record }}"
+  #   when: userConfigItems is defined
