@@ -24,5 +24,6 @@
     register: user_list
 
   - name: set_fact for collected users
-    ansible.builtin.set_fact:
-      users: user_list
+    ansible.builtin.set_stats:
+      data:
+        users: "{{ user_list }}"
