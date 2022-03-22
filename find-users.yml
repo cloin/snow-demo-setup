@@ -14,7 +14,7 @@
 
   - name: find all users with last name Demouser
     uri:
-      url: "{{ instance }}/api/now/table/sys_user?sysparm_query=last_name={{ user_query }}"
+      url: "{{ instance }}/api/now/table/sys_user?sysparm_query={{ user_query }}"
       method: GET
       user: "{{ username }}"
       password: "{{ password }}"
