@@ -20,11 +20,11 @@
         - sys_created_by: LIKE {{ demo_username }}
     register: userProblems
 
-  - name: find problem tasks created by {{ demo_username }}
-    servicenow.itsm.problem_task_info:
-      query:
-        - sys_created_by: LIKE {{ demo_username }}
-    register: userProblemTasks
+  # - name: find problem tasks created by {{ demo_username }}
+  #   servicenow.itsm.problem_task_info:
+  #     query:
+  #       - sys_created_by: LIKE {{ demo_username }}
+  #   register: userProblemTasks
 
   - name: find change requests created by {{ demo_username }}
     servicenow.itsm.change_request_info:
@@ -32,11 +32,11 @@
         - sys_created_by: LIKE {{ demo_username }}
     register: userChangeRequests
 
-  - name: find change request tasks created by {{ demo_username }}
-    servicenow.itsm.change_request_task_info:
-      query:
-        - sys_created_by: LIKE {{ demo_username }}
-    register: userChangeRequestTasks
+  # - name: find change request tasks created by {{ demo_username }}
+  #   servicenow.itsm.change_request_task_info:
+  #     query:
+  #       - sys_created_by: LIKE {{ demo_username }}
+  #   register: userChangeRequestTasks
 
   - name: find configuration item created by {{ demo_username }}
     servicenow.itsm.configuration_item_info:
@@ -50,7 +50,7 @@
     loop:
       - "{{ userIncidents }}"
       - "{{ userProblems }}"
-      - "{{ userProblemTasks }}"
+      # - "{{ userProblemTasks }}"
       - "{{ userChangeRequests }}"
-      - "{{ userChangeRequestTasks }}"
+      # - "{{ userChangeRequestTasks }}"
       - "{{ userConfigItems }}"
