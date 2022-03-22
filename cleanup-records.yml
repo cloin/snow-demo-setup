@@ -46,7 +46,7 @@
 
   - name: close user created change requests
     servicenow.itsm.configuration_item:
-      state: closed
+      state: absent
       close_code: "successful"
       close_notes: "Closed with ansible servicenow.itsm"
       number: "{{ item.number }}"
@@ -54,10 +54,14 @@
     when: userChangeRequests is defined
     ignore_errors: true
 
+  - name: dump problems
+    debug:
+      var: userProblems
+
   - name: close user created problems
     servicenow.itsm.problem:
       number: "{{ item.number }}"
-      state: closed
+      state: absent
       resolution_code: fix_applied
       fix_notes: "Closed with ansible servicenow.itsm" 
     with_items: "{{ userProblems.records }}"
