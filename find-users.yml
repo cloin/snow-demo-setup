@@ -21,9 +21,8 @@
       headers:
         Content-Type: application/json
       status_code: 200
-    register: users
+    register: user_list
 
-  - name: dump users
-    debug:
-      var: item.user_name
-    with_items: "{{ users.json.result }}"
+  - name: set_fact for collected users
+    ansible.builtin.set_fact:
+      users: user_list
