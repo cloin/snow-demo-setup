@@ -61,7 +61,9 @@
         close_notes: "Closed with ansible servicenow.itsm"
         number: "{{ item.number }}"
       with_items: "{{ userChangeRequests.records }}"
-      when: userChangeRequests is defined
+      when: 
+        - userChangeRequests is defined
+        - userChangeRequests.records > 0
 
     - name: close user created problems
       servicenow.itsm.problem:
@@ -70,7 +72,9 @@
         resolution_code: fix_applied
         fix_notes: "Closed with ansible servicenow.itsm" 
       with_items: "{{ userProblems.records }}"
-      when: userProblems is defined
+      when: 
+        - userProblems is defined
+        - userProblems.records > 0
 
     - name: close user created incidents
       servicenow.itsm.incident:
@@ -79,7 +83,9 @@
         close_code: "Solved (Permanently)"
         close_notes: "Closed with ansible servicenow.itsm"
       with_items: "{{ userIncidents.records }}"
-      when: userIncidents is defined
+      when: 
+        - userIncidents is defined
+        - userIncidents is > 0
 
     # - name: remove user created configuration items
     #   servicenow.itsm.configuration_item:
