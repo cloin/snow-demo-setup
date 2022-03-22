@@ -16,12 +16,14 @@
         query:
           - sys_created_by: LIKE {{ item.user_name }}
       register: userIncidents
+      with_items: "{{ users.json.result }}"
 
     - name: find problems created by {{ item.user_name }}
       servicenow.itsm.problem_info:
         query:
           - sys_created_by: LIKE {{ item.user_name }}
       register: userProblems
+      with_items: "{{ users.json.result }}"
 
     # - name: find problem tasks created by {{ item.user_name }}
     #   servicenow.itsm.problem_task_info:
@@ -34,6 +36,7 @@
         query:
           - sys_created_by: LIKE {{ item.user_name }}
       register: userChangeRequests
+      with_items: "{{ users.json.result }}"
 
     # - name: find change request tasks created by {{ item.user_name }}
     #   servicenow.itsm.change_request_task_info:
@@ -46,7 +49,7 @@
         query:
           - sys_created_by: LIKE {{ item.user_name }}
       register: userConfigItems
-    with_items: "{{ users.json.result }}"
+      with_items: "{{ users.json.result }}"
 
   - name: close/remove records created by user
     block:
