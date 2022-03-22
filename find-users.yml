@@ -1,5 +1,5 @@
 ---
-- name: find all users with last name Demouser
+- name: query list of users from SNOW instance
   hosts: localhost
   connection: local
   become: false
@@ -11,8 +11,7 @@
     user_query: last_name=Demouser
 
   tasks:
-
-  - name: find all users with last name Demouser
+  - name: find users by query
     uri:
       url: "{{ instance }}/api/now/table/sys_user?sysparm_query={{ user_query }}"
       method: GET

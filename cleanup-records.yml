@@ -8,72 +8,79 @@
 
   tasks:
 
-  - name: find incidents created by {{ demo_username }}
-    servicenow.itsm.incident_info:
-      query:
-        - sys_created_by: LIKE {{ demo_username }}
-    register: userIncidents
+  - name: get all record types created by user 
+    block:
 
-  - name: find problems created by {{ demo_username }}
-    servicenow.itsm.problem_info:
-      query:
-        - sys_created_by: LIKE {{ demo_username }}
-    register: userProblems
+    - name: find incidents created by {{ item.user_name }}
+      servicenow.itsm.incident_info:
+        query:
+          - sys_created_by: LIKE {{ item.user_name }}
+      register: userIncidents
 
-  # - name: find problem tasks created by {{ demo_username }}
-  #   servicenow.itsm.problem_task_info:
-  #     query:
-  #       - sys_created_by: LIKE {{ demo_username }}
-  #   register: userProblemTasks
+    - name: find problems created by {{ item.user_name }}
+      servicenow.itsm.problem_info:
+        query:
+          - sys_created_by: LIKE {{ item.user_name }}
+      register: userProblems
 
-  - name: find change requests created by {{ demo_username }}
-    servicenow.itsm.change_request_info:
-      query:
-        - sys_created_by: LIKE {{ demo_username }}
-    register: userChangeRequests
+    # - name: find problem tasks created by {{ item.user_name }}
+    #   servicenow.itsm.problem_task_info:
+    #     query:
+    #       - sys_created_by: LIKE {{ item.user_name }}
+    #   register: userProblemTasks
 
-  # - name: find change request tasks created by {{ demo_username }}
-  #   servicenow.itsm.change_request_task_info:
-  #     query:
-  #       - sys_created_by: LIKE {{ demo_username }}
-  #   register: userChangeRequestTasks
+    - name: find change requests created by {{ item.user_name }}
+      servicenow.itsm.change_request_info:
+        query:
+          - sys_created_by: LIKE {{ item.user_name }}
+      register: userChangeRequests
 
-  - name: find configuration item created by {{ demo_username }}
-    servicenow.itsm.configuration_item_info:
-      query:
-        - sys_created_by: LIKE {{ demo_username }}
-    register: userConfigItems
+    # - name: find change request tasks created by {{ item.user_name }}
+    #   servicenow.itsm.change_request_task_info:
+    #     query:
+    #       - sys_created_by: LIKE {{ item.user_name }}
+    #   register: userChangeRequestTasks
 
-  - name: close user created change requests
-    servicenow.itsm.configuration_item:
-      state: absent
-      close_code: "successful"
-      close_notes: "Closed with ansible servicenow.itsm"
-      number: "{{ item.number }}"
-    with_items: "{{ userChangeRequests.records }}"
-    when: userChangeRequests is defined
+    - name: find configuration item created by {{ item.user_name }}
+      servicenow.itsm.configuration_item_info:
+        query:
+          - sys_created_by: LIKE {{ item.user_name }}
+      register: userConfigItems
+    with_items: "{{ users.json.result }}"
 
-  - name: close user created problems
-    servicenow.itsm.problem:
-      number: "{{ item.number }}"
-      state: absent
-      resolution_code: fix_applied
-      fix_notes: "Closed with ansible servicenow.itsm" 
-    with_items: "{{ userProblems.records }}"
-    when: userProblems is defined
+  - name: close/remove records created by user
+    block:
 
-  - name: close user created incidents
-    servicenow.itsm.incident:
-      state: closed
-      number: "{{ item.number }}"
-      close_code: "Solved (Permanently)"
-      close_notes: "Closed with ansible servicenow.itsm"
-    with_items: "{{ userIncidents.records }}"
-    when: userIncidents is defined
+    - name: close user created change requests
+      servicenow.itsm.configuration_item:
+        state: "Closed incomplete"
+        close_code: "successful"
+        close_notes: "Closed with ansible servicenow.itsm"
+        number: "{{ item.number }}"
+      with_items: "{{ userChangeRequests.records }}"
+      when: userChangeRequests is defined
 
-  # - name: remove user created configuration items
-  #   servicenow.itsm.configuration_item:
-  #     sys_id: "{{ item.sys_id }}"
-  #     state: absent
-  #   with_items: "{{ userConfigItems.record }}"
-  #   when: userConfigItems is defined
+    - name: close user created problems
+      servicenow.itsm.problem:
+        number: "{{ item.number }}"
+        state: absent
+        resolution_code: fix_applied
+        fix_notes: "Closed with ansible servicenow.itsm" 
+      with_items: "{{ userProblems.records }}"
+      when: userProblems is defined
+
+    - name: close user created incidents
+      servicenow.itsm.incident:
+        state: closed
+        number: "{{ item.number }}"
+        close_code: "Solved (Permanently)"
+        close_notes: "Closed with ansible servicenow.itsm"
+      with_items: "{{ userIncidents.records }}"
+      when: userIncidents is defined
+
+    # - name: remove user created configuration items
+    #   servicenow.itsm.configuration_item:
+    #     sys_id: "{{ item.sys_id }}"
+    #     state: absent
+    #   with_items: "{{ userConfigItems.record }}"
+    #   when: userConfigItems is defined
