@@ -11,7 +11,7 @@
   - name: find incidents created by {{ demo_username }}
     servicenow.itsm.incident_info:
       query:
-        - description: LIKE {{ demo_username }}
+        - sys_created_by: LIKE {{ demo_username }}
     register: userIncidents
 
   - name: dump incidents
