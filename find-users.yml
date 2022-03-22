@@ -8,12 +8,13 @@
     username: "{{ lookup('env', 'SN_USERNAME') }}"
     password: "{{ lookup('env', 'SN_PASSWORD') }}"
     instance: "{{ lookup('env', 'SN_HOST') }}"
+    user_query: last_name=Demouser
 
   tasks:
 
-  - name: find user sys_id
+  - name: find all users with last name Demouser
     uri:
-      url: "{{ instance }}/api/now/table/sys_user?sysparm_query=last_name=Demouser"
+      url: "{{ instance }}/api/now/table/sys_user?sysparm_query=last_name={{ user_query }}"
       method: GET
       user: "{{ username }}"
       password: "{{ password }}"
