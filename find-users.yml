@@ -1,0 +1,28 @@
+---
+- name: find all users with last name Demouser
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+  vars:
+    username: "{{ lookup('env', 'SN_USERNAME') }}"
+    password: "{{ lookup('env', 'SN_PASSWORD') }}"
+    instance: "{{ lookup('env', 'SN_HOST') }}"
+
+  tasks:
+
+  - name: find user sys_id
+    uri:
+      url: "{{ instance }}/api/now/table/sys_user?sysparm_query=last_name=Demouser"
+      method: GET
+      user: "{{ username }}"
+      password: "{{ password }}"
+      force_basic_auth: true
+      headers:
+        Content-Type: application/json
+      status_code: 200
+    register: users
+
+  - name: dump users
+    debug:
+      var: users
