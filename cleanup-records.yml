@@ -54,6 +54,10 @@
   - name: close/remove records created by user
     block:
 
+    - name: dump CRs
+      debug:
+        var: userChangeRequests
+
     - name: close user created change requests
       servicenow.itsm.configuration_item:
         state: "Closed incomplete"
