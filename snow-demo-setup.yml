@@ -86,6 +86,10 @@
       set_fact:
         user_info_paths: "{{ lookup('ansible.utils.to_paths', user_info) }}"
 
+    - name: dump user info
+      debug:
+        var: user_info
+
     - name: cleanup user
       uri:
         url: "{{ instance }}/api/now/table/sys_user/{{ user_info_paths['json.result[0].sys_id'] }}"
