@@ -44,13 +44,10 @@
         - sys_created_by: LIKE {{ demo_username }}
     register: userConfigItems
 
-  - name: dump user created records
-    debug: 
-      var: "{{ item }}"
-    loop:
-      - "{{ userIncidents }}"
-      - "{{ userProblems }}"
-      # - "{{ userProblemTasks }}"
-      - "{{ userChangeRequests }}"
-      # - "{{ userChangeRequestTasks }}"
-      - "{{ userConfigItems }}"
+  - name: remove user created incidents
+    servicenow.itsm.incident:
+      state: closed
+      number: "{{ item.number }}"
+      close_code: "Solved (Permanently)"
+      close_notes: "Closed with ansible servicenow.itsm"
+    with_items: "{{ userIncidents.records }}"
