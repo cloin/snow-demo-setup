@@ -58,6 +58,10 @@
       debug:
         var: userChangeRequests
 
+    - name: dump users
+      debug:
+        var: users.json.result
+
     - name: close user created change requests
       servicenow.itsm.configuration_item:
         state: "Closed incomplete"
