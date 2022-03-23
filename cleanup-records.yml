@@ -8,6 +8,10 @@
 
   tasks:
 
+  - name: dump users
+    debug:
+      var: users
+
   - name: get all record types created by user 
     block:
 

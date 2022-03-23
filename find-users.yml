@@ -26,4 +26,4 @@
   - name: set_fact for collected users
     ansible.builtin.set_stats:
       data:
-        users: "{{ user_list }}"
+        users: "{{ user_list | json_query('json.result.user_name') }}"
