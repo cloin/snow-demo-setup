@@ -1,0 +1,62 @@
+---
+- name: find records by tag
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    username: "{{ lookup('env', 'SN_USERNAME') }}"
+    password: "{{ lookup('env', 'SN_PASSWORD') }}"
+    instance: "{{ lookup('env', 'SN_HOST') }}"
+
+  tasks:
+
+    - name: find incidents by query
+      uri:
+        url: "{{ instance }}/api/now/table/incident?sysparm_query=sys_tags.2b7609eb1bd2c110b76a0d0fdc4bcb70=2b7609eb1bd2c110b76a0d0fdc4bcb70&active=true"
+        method: GET
+        user: "{{ username }}"
+        password: "{{ password }}"
+        force_basic_auth: true
+        headers:
+          Content-Type: application/json
+        status_code: 200
+      register: incidents
+
+    - name: find problems by query
+      uri:
+        url: "{{ instance }}/api/now/table/problem?sysparm_query=sys_tags.2b7609eb1bd2c110b76a0d0fdc4bcb70=2b7609eb1bd2c110b76a0d0fdc4bcb70&active=true"
+        method: GET
+        user: "{{ username }}"
+        password: "{{ password }}"
+        force_basic_auth: true
+        headers:
+          Content-Type: application/json
+        status_code: 200
+      register: problems
+
+    - name: find change requests by query
+      uri:
+        url: "{{ instance }}/api/now/table/change_request?sysparm_query=sys_tags.2b7609eb1bd2c110b76a0d0fdc4bcb70=2b7609eb1bd2c110b76a0d0fdc4bcb70&active=true"
+        method: GET
+        user: "{{ username }}"
+        password: "{{ password }}"
+        force_basic_auth: true
+        headers:
+          Content-Type: application/json
+        status_code: 200
+      register: changes
+
+    - name: query incident numbers
+      set_fact:
+        incident_list: "{{ incidents | json_query('json.result[*].number') | select() | list }}"
+
+    - name: query problem numbers
+      set_fact:
+        problem_list: "{{ problems | json_query('json.result[*].number') | select() | list }}"
+
+    - name: query change request numbers
+      set_fact:
+        change_list: "{{ changes | json_query('json.result[*].number') | select() | list }}"
+
+    - name: clean up records
+      include_tasks: close-records.yml
