@@ -16,4 +16,4 @@ ansible-navigator:
     level: warning
   editor:
     command: code {filename}
-    console: true
+    console: false
