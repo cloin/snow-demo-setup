@@ -1,0 +1,9 @@
+---
+ansible-navigator:
+  execution-environment:
+    enabled: true
+    environment-variables:
+      pass:
+        - SN_HOST
+        - SN_USERNAME
+        - SN_PASSWORD
