@@ -14,3 +14,6 @@ ansible-navigator:
     append: true
     file: artifacts/ansible-navigator.log
     level: warning
+  editor:
+    command: code {filename}
+    console: true

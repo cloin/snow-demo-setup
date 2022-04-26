@@ -2,7 +2,7 @@
 - name: find records by tag
   hosts: localhost
   connection: local
-  gather_facts: false
+  gather_facts: true
   vars:
     username: "{{ lookup('env', 'SN_USERNAME') }}"
     password: "{{ lookup('env', 'SN_PASSWORD') }}"
@@ -46,17 +46,28 @@
         status_code: 200
       register: changes
 
-    - name: query incident numbers
-      set_fact:
-        incident_list: "{{ incidents | json_query('json.result[*].number') | select() | list }}"
+    - set_fact:
+        incident_list: []
+        problem_list: []
+        change_list: []
 
-    - name: query problem numbers
+    - name: query incident number and creation time 
       set_fact:
-        problem_list: "{{ problems | json_query('json.result[*].number') | select() | list }}"
+        incident_list: '{{ incident_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
+      loop: "{{ incidents.json.result }}"
+      when: incidents
 
-    - name: query change request numbers
+    - name: query problem number and creation time 
       set_fact:
-        change_list: "{{ changes | json_query('json.result[*].number') | select() | list }}"
+        problem_list: '{{ problem_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
+      loop: "{{ problems.json.result }}"
+      when: problems
+
+    - name: query change number and creation time 
+      set_fact:
+        change_list: '{{ change_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
+      loop: "{{ changes.json.result }}"
+      when: changes
 
     - name: clean up records
       include_tasks: close-records.yml

@@ -2,38 +2,32 @@
 - name: close incidents from list
   servicenow.itsm.incident:
     state: closed
-    number: "{{ item }}"
+    number: "{{ item.number }}"
     close_code: "Solved (Permanently)"
     close_notes: "Closed with ansible servicenow.itsm"
   with_items: "{{ incident_list }}"
   when: 
     - incident_list is defined
+    - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200
 
 - name: close problems from list
   servicenow.itsm.problem:
-    problem_mapping: 
-      state:
-        1: "Open"
-        2: "Known Error"
-        3: "Pending Change"
-        4: "Closed/Resolved"
-        5: "closed"
-    state: "closed"
-    resolution_code: "fix_applied"
-    fix_notes: "Closed with ansible servicenow.itsm" 
+    state: "absent"
     assigned_to: "{{ username }}"
-    number: "{{ item }}"
+    number: "{{ item.number }}"
   with_items: "{{ problem_list }}"
   when: 
     - problem_list is defined
+    - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200
   
 - name: close user created change requests
   servicenow.itsm.change_request:
     state: "closed"
     close_code: "successful"
     close_notes: "Closed with ansible servicenow.itsm"
-    number: "{{ item }}"
+    number: "{{ item.number }}"
   with_items: "{{ change_list }}"
   when: 
     - change_list is defined
+    - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200
 
