@@ -3,6 +3,7 @@ ansible-navigator:
   execution-environment:
     enabled: true
     environment-variables:
+      # Pass some local env vars to running container
       pass:
         - SN_HOST
         - SN_USERNAME
