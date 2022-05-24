@@ -1,0 +1,35 @@
+---
+- name: update records
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    username: "{{ lookup('env', 'SN_USERNAME') }}"
+    password: "{{ lookup('env', 'SN_PASSWORD') }}"
+    instance: "{{ lookup('env', 'SN_HOST') }}"
+
+  tasks:
+
+  - name: update problem state 
+    servicenow.itsm.problem:
+      problem_mapping:
+        state:
+          1: "open"
+          2: "known_error"
+          3: "pending_change"
+          4: "closed_resolved"
+          5: "closed"
+        problem_state:
+          1: "open"
+          2: "known_error"
+          3: "pending_change"
+          4: "closed_resolved"
+          5: "closed"
+      state: known_error
+      close_notes: "testing"
+      cause_notes: "testing"
+      assigned_to: "Ron.Kettering"
+      number: PRB0040065
+    # when: 
+    #   - problem_list is defined
+    #   - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200

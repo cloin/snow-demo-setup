@@ -12,7 +12,7 @@
 
 - name: close old problems from list
   servicenow.itsm.problem:
-    state: "absent"
+    state: Closed
     assigned_to: "{{ username }}"
     number: "{{ item.number }}"
   with_items: "{{ problem_list }}"
@@ -22,7 +22,7 @@
   
 - name: close old change requests from list
   servicenow.itsm.change_request:
-    state: "closed"
+    state: closed
     close_code: "successful"
     close_notes: "Closed with ansible servicenow.itsm"
     number: "{{ item.number }}"

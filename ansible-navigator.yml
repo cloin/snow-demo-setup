@@ -7,6 +7,7 @@ ansible-navigator:
       - SN_HOST
       - SN_USERNAME
       - SN_PASSWORD
+      - INSTRUQT_PARTICIPANT_ID
   playbook-artifact:
     enable: true
     save-as: '{playbook_dir}/artifacts/{playbook_name}-artifact-{time_stamp}.json'
