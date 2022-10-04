@@ -2,6 +2,10 @@
 ansible-navigator:
   execution-environment:
     enabled: true
+    container-engine: docker
+    image: quay.io/acme_corp/servicenow-ee
+    pull:
+      policy: always
     environment-variables:
       pass:
       - SN_HOST

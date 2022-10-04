@@ -1,5 +1,5 @@
 ---
-- name: find records by tag
+- name: Find records by tag
   hosts: localhost
   connection: local
   gather_facts: true
@@ -7,43 +7,70 @@
     username: "{{ lookup('env', 'SN_USERNAME') }}"
     password: "{{ lookup('env', 'SN_PASSWORD') }}"
     instance: "{{ lookup('env', 'SN_HOST') }}"
-
+    tag_name: instruqt
+    mapping:
+      incident:
+        state:
+          1: "new"
+          2: "active"
+          3: "awaiting_problem"
+          4: "awaiting_user_infor"
+          5: "awaiting_evidence"
+          6: "resolved"
+          7: "closed"
+          8: "active"
+      problem:
+        state:
+          1: "open"
+          2: "known_error"
+          3: "pending_change"
+          4: "closed_resolved"
+          5: "closed"
+        # problem_state:
+        #   1: "open"
+        #   2: "known_error"
+        #   3: "pending_change"
+        #   4: "closed_resolved"
+        #   5: "closed"
   tasks:
 
-    - name: find incidents by query
-      uri:
-        url: "{{ instance }}/api/now/table/incident?sysparm_query=sys_tags.2b7609eb1bd2c110b76a0d0fdc4bcb70=2b7609eb1bd2c110b76a0d0fdc4bcb70&active=true"
-        method: GET
-        user: "{{ username }}"
-        password: "{{ password }}"
-        force_basic_auth: true
-        headers:
-          Content-Type: application/json
-        status_code: 200
-      register: incidents
+    - name: Find tag ID by name
+      servicenow.itsm.api_info:
+        resource: label
+        sysparm_query: name={{ tag_name }}
+        columns:
+          - name
+          - sys_id
+      register: tag_info
 
-    - name: find problems by query
-      uri:
-        url: "{{ instance }}/api/now/table/problem?sysparm_query=sys_tags.2b7609eb1bd2c110b76a0d0fdc4bcb70=2b7609eb1bd2c110b76a0d0fdc4bcb70&active=true"
-        method: GET
-        user: "{{ username }}"
-        password: "{{ password }}"
-        force_basic_auth: true
-        headers:
-          Content-Type: application/json
-        status_code: 200
+    - ansible.builtin.set_fact:
+        tag_id: "{{ tag_info.record[0].sys_id }}"
+
+    - name: Get tagged incidents
+      servicenow.itsm.incident_info:
+        incident_mapping: "{{ mapping.incident }}"
+        sysparm_query:
+          sys_tags.{{ tag_id }}={{ tag_id }}
+          ^active=true
+        sysparm_display_value: false
+      register: incidents
+  
+    - name: Get tagged problems
+      servicenow.itsm.problem_info:
+        # problem_mapping: "{{ mapping.problem }}"
+        sysparm_query:
+          sys_tags.{{ tag_id }}={{ tag_id }}
+          ^active=true
+        sysparm_display_value: false
       register: problems
 
-    - name: find change requests by query
-      uri:
-        url: "{{ instance }}/api/now/table/change_request?sysparm_query=sys_tags.2b7609eb1bd2c110b76a0d0fdc4bcb70=2b7609eb1bd2c110b76a0d0fdc4bcb70&active=true"
-        method: GET
-        user: "{{ username }}"
-        password: "{{ password }}"
-        force_basic_auth: true
-        headers:
-          Content-Type: application/json
-        status_code: 200
+    - name: Get tagged changes
+      servicenow.itsm.change_request_info:
+        # change_request_mapping: "{{ mapping.incident }}"
+        sysparm_query:
+          sys_tags.{{ tag_id }}={{ tag_id }}
+          ^active=true
+        sysparm_display_value: false
       register: changes
 
     - set_fact:
@@ -54,19 +81,19 @@
     - name: query incident number and creation time 
       set_fact:
         incident_list: '{{ incident_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
-      loop: "{{ incidents.json.result }}"
+      loop: "{{ incidents.records }}"
       when: incidents
 
     - name: query problem number and creation time 
       set_fact:
         problem_list: '{{ problem_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
-      loop: "{{ problems.json.result }}"
+      loop: "{{ problems.records }}"
       when: problems
 
     - name: query change number and creation time 
       set_fact:
         change_list: '{{ change_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
-      loop: "{{ changes.json.result }}"
+      loop: "{{ changes.records }}"
       when: changes
 
     - name: clean up records

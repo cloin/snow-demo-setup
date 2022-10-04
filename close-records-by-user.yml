@@ -1,5 +1,5 @@
 ---
-- name: close user created records 
+- name: close user created records
   hosts: localhost
   connection: local
   gather_facts: false
@@ -11,79 +11,77 @@
     incident_list: []
     problem_list: []
     change_list: []
-
   tasks:
+    - name: find user created incidents
+      servicenow.itsm.incident_info:
+        query:
+          - sys_created_by: LIKE {{ demo_username }}
+            active: = true
+      register: incidents
 
-  - name: find user created incidents
-    servicenow.itsm.incident_info:
-      query:
-        - sys_created_by: LIKE {{ demo_username }}
-          active: = true
-    register: incidents
+    - name: find user created problems
+      servicenow.itsm.problem_info:
+        query:
+          - sys_created_by: LIKE {{ demo_username }}
+            active: = true
+      register: problems
 
-  - name: find user created problems
-    servicenow.itsm.problem_info:
-      query:
-        - sys_created_by: LIKE {{ demo_username }}
-          active: = true
-    register: problems
+    - name: find user created change requests
+      servicenow.itsm.change_request_info:
+        query:
+          - sys_created_by: LIKE {{ demo_username }}
+            active: = true
+      register: changes
 
-  - name: find user created change requests
-    servicenow.itsm.change_request_info:
-      query:
-        - sys_created_by: LIKE {{ demo_username }}
-          active: = true
-    register: changes
+    - name: query incident number and creation time
+      set_fact:
+        incident_list: '{{ incident_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
+      loop: "{{ incidents.records }}"
+      when: incidents
 
-  - name: query incident number and creation time 
-    set_fact:
-      incident_list: '{{ incident_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
-    loop: "{{ incidents.records }}"
-    when: incidents
+    - name: query problem number and creation time
+      set_fact:
+        problem_list: '{{ problem_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
+      loop: "{{ problems.records }}"
+      when: problems
 
-  - name: query problem number and creation time 
-    set_fact:
-      problem_list: '{{ problem_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
-    loop: "{{ problems.records }}"
-    when: problems
+    - name: query change request number and creation time
+      set_fact:
+        change_list: '{{ change_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
+      loop: "{{ changes.records }}"
+      when: changes
 
-  - name: query change request number and creation time 
-    set_fact:
-      change_list: '{{ change_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
-    loop: "{{ changes.records }}"
-    when: changes
-  
-  - name: close incidents from list
-    servicenow.itsm.incident:
-      state: closed
-      number: "{{ item.number }}"
-      close_code: "Solved (Permanently)"
-      close_notes: "Closed with ansible servicenow.itsm"
-      other:
-        active: false
-    with_items: "{{ incident_list }}"
-    when: 
-      - incident_list is defined
+    - name: close incidents from list
+      servicenow.itsm.incident:
+        state: closed
+        number: "{{ item.number }}"
+        close_code: Solved (Permanently)
+        close_notes: Closed with ansible servicenow.itsm
+        other:
+          active: false
+      with_items: "{{ incident_list }}"
+      when:
+        - incident_list is defined
 
-  - name: close problems from list
-    servicenow.itsm.problem:
-      state: Closed
-      assigned_to: "{{ username }}"
-      number: "{{ item.number }}"
-      other:
-        active: false
-    with_items: "{{ problem_list }}"
-    when: 
-      - problem_list is defined
-    
-  - name: close change requests from list
-    servicenow.itsm.change_request:
-      state: closed
-      close_code: "successful"
-      close_notes: "Closed with ansible servicenow.itsm"
-      number: "{{ item.number }}"
-      other:
-        active: false
-    with_items: "{{ change_list }}"
-    when: 
-      - change_list is defined
+    - name: close problems from list
+      servicenow.itsm.problem:
+        state: Closed
+        assigned_to: "{{ username }}"
+        number: "{{ item.number }}"
+        other:
+          active: false
+      with_items: "{{ problem_list }}"
+      when:
+        - problem_list is defined
+
+    - name: close change requests from list
+      servicenow.itsm.change_request:
+        state: closed
+        close_code: successful
+        close_notes: Closed with ansible servicenow.itsm
+        number: "{{ item.number }}"
+        other:
+          active: false
+      with_items: "{{ change_list }}"
+      when:
+        - change_list is defined

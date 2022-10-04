@@ -1,0 +1,21 @@
+---
+- name: get incident info
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    username: "{{ lookup('env', 'SN_USERNAME') }}"
+    password: "{{ lookup('env', 'SN_PASSWORD') }}"
+    instance: "{{ lookup('env', 'SN_HOST') }}"
+
+  tasks:
+
+  - name: get single incident by id
+    servicenow.itsm.incident_info:
+      sysparm_display_value: all
+      number: INC0011848
+    register: incident
+
+  - name: dump incident info
+    ansible.builtin.debug:
+      var: incident
