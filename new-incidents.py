@@ -8,6 +8,10 @@ import time
 # Uses asyncio and aiohttp, and authenticates using aiohttp.BasicAuth with the login credentials and instance URL provided as environment variables.
 # Only prints out incidents created after the script began executing, and only prints out each incident once.
 
+#  ➜  python-snow python3.9 new-incidents.py
+#  {"number": "INC0012170", "sys_id": "b7206ff71b88e950b76a0d0fdc4bcb7b", "short_description": "test incident 1", "incident_state": "1"}
+#  {"number": "INC0012171", "sys_id": "4630eb7b1b88e950b76a0d0fdc4bcb4e", "short_description": "test incident 2", "incident_state": "1"}
+
 async def check_incidents(start_time, interval, printed_incidents):
     username = os.environ['SN_USERNAME']
     password = os.environ['SN_PASSWORD']
