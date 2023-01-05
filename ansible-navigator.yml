@@ -8,6 +8,7 @@ ansible-navigator:
       - SN_USERNAME
       - SN_PASSWORD
       - INSTRUQT_PARTICIPANT_ID
+  image: quay.io/acme_corp/servicenow-ee:latest
   playbook-artifact:
     enable: true
     save-as: '{playbook_dir}/artifacts/{playbook_name}-artifact-{time_stamp}.json'
