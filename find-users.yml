@@ -23,11 +23,6 @@
       status_code: 200
     register: user_list
 
-  # - name: set_fact for collected users
-  #   ansible.builtin.set_stats:
-  #     data:
-  #       users: "{{ user_list | json_query('json.result[*].user_name') }}"
-
   - name: set_fact
     set_fact:
       users: "{{ user_list | json_query('json.result[*].user_name') }}"
