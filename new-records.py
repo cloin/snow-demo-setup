@@ -7,7 +7,7 @@ import time
 # Poll ServiceNow API for new records and print out the record number, sys_id and short description as a JSON object.
 # Uses asyncio and aiohttp, and authenticates using aiohttp.BasicAuth with the login credentials and instance URL provided as environment variables.
 # Only prints out records created after the script began executing, and only prints out each record once.
-# Table for records configured by environment variable 
+# Table to watch for records configured as environment variable `SN_TABLE`
 
 #  ➜ python3.9 new records.py
 #  {"number": "INC0012170", "sys_id": "b7206ff71b88e950b76a0d0fdc4bcb7b", "short_description": "test incident 1", "incident_state": "1"}
