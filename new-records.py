@@ -16,7 +16,7 @@ import aiohttp
 #         username: "{{ SN_USERNAME }}"
 #         password: "{{ SN_PASSWORD }}"
 #         table: "{{ SN_TABLE }}"
-#         interval: 1
+#         interval: 5
 #   rules:
 #     - name: New record created
 #       condition: event.sys_id is defined
@@ -30,7 +30,7 @@ async def main(queue: asyncio.Queue, args: Dict[str, Any]):
     password = args.get("password")
     table = args.get("table")
     # query = args.get("query")
-    interval = int(args.get("interval", 1))
+    interval = int(args.get("interval", 5))
 
     start_time = time.time()
     start_time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(start_time))
