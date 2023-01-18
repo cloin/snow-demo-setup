@@ -1,13 +1,12 @@
 import asyncio
-import aiohttp
 import time
 from typing import Any, Dict
+import aiohttp
 
 # event-driven-ansible source plugin example
-# Poll ServiceNow API for new records and print out the record number, sys_id and short description as a JSON object.
-# Uses asyncio and aiohttp, and authenticates using aiohttp.BasicAuth with the login credentials and instance URL provided as environment variables.
-# Only prints out records created after the script began executing, and only prints out each record once.
-# Table to watch for records configured as environment variable `SN_TABLE`
+# Poll ServiceNow API for new records in a table and print out the record
+# Only prints out records created after the script began executing
+# and only prints out each record once.
 
 # - name: Watch for new records
 #   hosts: localhost
@@ -17,10 +16,10 @@ from typing import Any, Dict
 #         username: "{{ SN_USERNAME }}"
 #         password: "{{ SN_PASSWORD }}"
 #         table: "{{ SN_TABLE }}"
-#         interval: 1       
+#         interval: 1
 #   rules:
 #     - name: New record created
-#       condition: event.sys_id is defined 
+#       condition: event.sys_id is defined
 #       action:
 #         debug:
 
