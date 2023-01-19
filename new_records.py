@@ -11,6 +11,13 @@ import aiohttp
 # This script can be tested outside of ansible-rulebook by specifying environment
 # variables for SN_HOST, SN_USERNAME, SN_PASSWORD, SN_TABLE
 
+# Arguments:
+#   - instance: ServiceNow instance (e.g. https://dev-012345.service-now.com)
+#   - username: ServiceNow username
+#   - password: ServiceNow password
+#   - table:    Table to watch for new records
+#   - interval: How often to poll for new records
+
 # - name: Watch for new records
 #   hosts: localhost
 #   sources:
