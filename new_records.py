@@ -6,8 +6,8 @@ import aiohttp
 
 # event-driven-ansible source plugin example
 
-# Poll ServiceNow API for new records in a table and print out the record
-# Only prints out records created after the script began executing and only prints out each record once.
+# Poll ServiceNow API for new records in a table
+# Only retrieves records created after the script began executing and only prints out each record once
 # This script can be tested outside of ansible-rulebook by specifying environment
 # variables for SN_HOST, SN_USERNAME, SN_PASSWORD, SN_TABLE
 
