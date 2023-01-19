@@ -1,5 +1,6 @@
 import asyncio
 import time
+import os
 from typing import Any, Dict
 import aiohttp
 
@@ -16,7 +17,7 @@ import aiohttp
 #         username: "{{ SN_USERNAME }}"
 #         password: "{{ SN_PASSWORD }}"
 #         table: "{{ SN_TABLE }}"
-#         interval: 5
+#         interval: 1
 #   rules:
 #     - name: New record created
 #       condition: event.sys_id is defined
@@ -30,7 +31,7 @@ async def main(queue: asyncio.Queue, args: Dict[str, Any]):
     password = args.get("password")
     table = args.get("table")
     # query = args.get("query")
-    interval = int(args.get("interval", 5))
+    interval = int(args.get("interval", 1))
 
     start_time = time.time()
     start_time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(start_time))
@@ -50,3 +51,15 @@ async def main(queue: asyncio.Queue, args: Dict[str, Any]):
                 else:
                     print(f'Error {resp.status}')
             await asyncio.sleep(interval)
+
+if __name__ == "__main__":
+    instance = os.environ.get('SN_HOST')
+    username = os.environ.get('SN_USERNAME')
+    password = os.environ.get('SN_PASSWORD')
+    table = os.environ.get('SN_TABLE')
+
+    class MockQueue:
+        async def put(self, event):
+            print(event)
+
+    asyncio.run(main(MockQueue(), {"instance": instance, "username": username, "password": password, "table": table}))
