@@ -27,7 +27,7 @@ import aiohttp
 #         username: "{{ SN_USERNAME }}"
 #         password: "{{ SN_PASSWORD }}"
 #         table: "{{ SN_TABLE }}"
-#         interval: 5
+#         interval: 1
 #   rules:
 #     - name: New record created
 #       condition: event.sys_id is defined
