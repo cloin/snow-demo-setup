@@ -14,7 +14,7 @@ import aiohttp
 # - name: Watch for new records
 #   hosts: localhost
 #   sources:
-#     - cloin.servicenow.records:
+#     - cloin.servicenow.new_records:
 #         instance: "{{ SN_HOST }}"
 #         username: "{{ SN_USERNAME }}"
 #         password: "{{ SN_PASSWORD }}"
