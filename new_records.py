@@ -58,7 +58,7 @@ if __name__ == "__main__":
     instance = os.environ.get('SN_HOST')
     username = os.environ.get('SN_USERNAME')
     password = os.environ.get('SN_PASSWORD')
-    table = os.environ.get('SN_TABLE')
+    table    = os.environ.get('SN_TABLE')
 
     class MockQueue:
         async def put(self, event):
