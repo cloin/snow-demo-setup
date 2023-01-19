@@ -33,6 +33,8 @@ import aiohttp
 #       action:
 #         debug:
 
+
+# Entrypoint from ansible-rulebook
 async def main(queue: asyncio.Queue, args: Dict[str, Any]):
 
     instance = args.get("instance")
@@ -61,6 +63,8 @@ async def main(queue: asyncio.Queue, args: Dict[str, Any]):
                     print(f'Error {resp.status}')
             await asyncio.sleep(interval)
 
+            
+# this is only called when testing plugin directly, without ansible-rulebook
 if __name__ == "__main__":
     instance = os.environ.get('SN_HOST')
     username = os.environ.get('SN_USERNAME')
