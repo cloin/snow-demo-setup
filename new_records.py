@@ -1,39 +1,42 @@
+"""
+new_records.py
+
+event-driven-ansible source plugin example
+
+Poll ServiceNow API for new records in a table
+Only retrieves records created after the script began executing and only prints out each record once
+This script can be tested outside of ansible-rulebook by specifying environment
+variables for SN_HOST, SN_USERNAME, SN_PASSWORD, SN_TABLE
+
+Arguments:
+  - instance: ServiceNow instance (e.g. https://dev-012345.service-now.com)
+  - username: ServiceNow username
+  - password: ServiceNow password
+  - table:    Table to watch for new records
+  - query:    (optional) Records to query. Defaults to records created today
+  - interval: (optional) How often to poll for new records. Defaults to 5 seconds
+
+- name: Watch for new records
+  hosts: localhost
+  sources:
+    - cloin.servicenow.new_records:
+        instance: https://dev-012345.service-now.com
+        username: ansible
+        password: ansible
+        table: incident
+        interval: 1
+  rules:
+    - name: New record created
+      condition: event.sys_id is defined
+      action:
+        debug:
+"""
+
 import asyncio
 import time
 import os
 from typing import Any, Dict
 import aiohttp
-
-# event-driven-ansible source plugin example
-
-# Poll ServiceNow API for new records in a table
-# Only retrieves records created after the script began executing and only prints out each record once
-# This script can be tested outside of ansible-rulebook by specifying environment
-# variables for SN_HOST, SN_USERNAME, SN_PASSWORD, SN_TABLE
-
-# Arguments:
-#   - instance: ServiceNow instance (e.g. https://dev-012345.service-now.com)
-#   - username: ServiceNow username
-#   - password: ServiceNow password
-#   - table:    Table to watch for new records
-#   - query:    (optional) Records to query. Defaults to records created today
-#   - interval: (optional) How often to poll for new records. Defaults to 5 seconds
-
-# - name: Watch for new records
-#   hosts: localhost
-#   sources:
-#     - cloin.servicenow.new_records:
-#         instance: "{{ SN_HOST }}"
-#         username: "{{ SN_USERNAME }}"
-#         password: "{{ SN_PASSWORD }}"
-#         table: "{{ SN_TABLE }}"
-#         interval: 1
-#   rules:
-#     - name: New record created
-#       condition: event.sys_id is defined
-#       action:
-#         debug:
-
 
 # Entrypoint from ansible-rulebook
 async def main(queue: asyncio.Queue, args: Dict[str, Any]):
