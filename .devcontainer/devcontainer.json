@@ -14,13 +14,13 @@
 		"ghcr.io/devcontainers/features/python:1": {}
 	},
 	
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "pip install ansible-navigator",
 
+	// VS Code extensions to install
 	"extensions": ["redhat.ansible"]
 
 	// Configure tool-specific properties.
