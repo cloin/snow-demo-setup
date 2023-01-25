@@ -1,4 +1,4 @@
-# Event-Drive Ansible example/demo
+# Event-Driven Ansible example/demo
 
 This directory contains a source plugin (`new_records.py`) for Event-Drive Ansible (EDA) along with a rulebook and playbook to execute. The source plugin accepts arguments for username, password, ServiceNow instance and table (the table you want to watch for new records being created).
 
