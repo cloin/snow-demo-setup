@@ -9,7 +9,7 @@ python new_records.py
 
 - To test the script from `ansible-rulebook` (the CLI component of EDA), set parameters in the rulebook for instance, username, password, and table and run:
 ~~~
-ansible-rulebook_rulebook --rulebook new_records.yml -i inventory -S . --verbose
+ansible-rulebook_rulebook --rulebook new_records.yml -i inventory -S .
 ~~~
 
 In above command, `-S` tells `ansible-rulebook` where to look for source plugins. Typically, these source plugins would be contained within an ansible collection, but this flag works well for testing.
