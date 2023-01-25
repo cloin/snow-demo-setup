@@ -1,0 +1,9 @@
+---
+- name: Get information from ServiceNow record
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Print record information
+      debug:
+        msg: "Record: {{ event.number }}, Description: {{ event.short_description }}"

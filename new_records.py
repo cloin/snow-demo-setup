@@ -62,7 +62,8 @@ async def main(queue: asyncio.Queue, args: Dict[str, Any]):
 
                         if record['sys_updated_on'] > start_time_str and record['sys_id'] not in printed_records:
                             printed_records.add(record['sys_id'])
-                            print(record)
+                            await queue.put(record)
+
                 else:
                     print(f'Error {resp.status}')
             await asyncio.sleep(interval)

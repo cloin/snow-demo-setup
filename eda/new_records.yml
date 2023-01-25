@@ -1,0 +1,15 @@
+- name: Watch for new records
+  hosts: localhost
+  sources:
+    - new_records:
+        instance: "{{ SN_HOST }}"
+        username: "{{ SN_USERNAME }}"
+        password: "{{ SN_PASSWORD }}" 
+        table: incident
+        interval: 1
+  rules:
+    - name: New record created
+      condition: event.sys_id is defined
+      action:
+        run_playbook:
+          name: playbooks/new_record.yml
