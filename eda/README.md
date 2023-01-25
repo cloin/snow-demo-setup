@@ -16,5 +16,5 @@ In above command, `-S` tells `ansible-rulebook` where to look for source plugins
 
 - If you'd like to obscure username, password, and instance url, you can export environment variables and pass them in like so: 
 ~~~
-`ansible-rulebook --rulebook new_records_rulebook.yml -i inventory.yml -S . --env-vars SN_HOST,SN_USERNAME,SN_PASSWORD`
+ansible-rulebook --rulebook new_records_rulebook.yml -i inventory.yml -S . --env-vars SN_HOST,SN_USERNAME,SN_PASSWORD
 ~~~
