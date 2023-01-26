@@ -22,10 +22,24 @@
 	"postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/install_reqs.sh ${containerWorkspaceFolder}",
 
 	// VS Code extensions to install
-	"extensions": ["redhat.ansible"]
+	// "extensions": ["redhat.ansible"]
 
 	// Configure tool-specific properties.
-	// "customizations": {},
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            // Set *default* container specific settings.json values on container create.
+            "settings": { 
+                "ansible.executionEnvironment.image": "quay.io/acme_corp/servicenow-ee:latest",
+                "ansible.ansible.useFullyQualifiedCollectionNames" : true,
+                "ansible.ansibleLint.enabled" : true
+            },
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "redhat.ansible"
+            ]
+        }
+    }
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
