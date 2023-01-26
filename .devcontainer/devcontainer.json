@@ -19,7 +19,7 @@
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "pip install ansible-navigator",
-	"postCreateCommand": "/bin/bash ${containerWorkspaceFolder}/eda/install_reqs.sh",
+	"postCreateCommand": "/bin/bash ${containerWorkspaceFolder}/.devcontainer/install_reqs.sh",
 
 	// VS Code extensions to install
 	"extensions": ["redhat.ansible"]
