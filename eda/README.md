@@ -13,3 +13,18 @@ ansible-rulebook --rulebook new_records_rulebook.yml -i inventory.yml -S . --env
 ~~~
 
 In above command, `-S` tells `ansible-rulebook` where to look for source plugins. Typically, these source plugins would be contained within an ansible collection, but this flag works well for testing.
+
+After executing the rulebook with the above command, create a new incident as the same user. Success looks like:
+```
+vscode ➜ /workspaces/cloin-snow/eda (main) $ ansible-rulebook --rulebook new_records_rulebook.yml -i inventory.yml -S . --env-vars SN_HOST,SN_USERNAME,SN_PASSWORD
+
+PLAY [Get information from ServiceNow record] **********************************
+
+TASK [Print record information] ************************************************
+ok: [localhost] => {
+    "msg": "Record: INC0012273, Description: Something truly incredible has happened!"
+}
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```
