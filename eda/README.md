@@ -28,3 +28,7 @@ ok: [localhost] => {
 PLAY RECAP *********************************************************************
 localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 ```
+
+------
+This is used in a video on '6 guidelines for creating Event-Driven Ansible event source plugins' watch below
+[![Watch the video](https://i.ytimg.com/vi/4f7ARUnVZmY/hqdefault.jpg)](https://www.youtube.com/watch?v=4f7ARUnVZmY)
