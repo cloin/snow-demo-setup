@@ -31,85 +31,59 @@
     block:
 
     - name: create user
-      uri:
-        url: "{{ instance }}/api/now/table/sys_user?sysparm_input_display_value=true"
-        method: POST
-        user: "{{ username }}"
-        password: "{{ password }}"
-        force_basic_auth: true
-        headers:
-          Content-Type: application/json
-        body_format: json
-        body:
+      servicenow.itsm.api:
+        resource: sys_user
+        action: post
+        query_params:
+          sysparm_input_display_value: true
+        data:
           user_name: "{{ demo_username }}"
           user_password: "{{ demo_password }}"
           first_name: "{{ first_name }}"
-          last_name: Demouser
-          department: IT
+          last_name: "Demouser"
+          department: "IT"
           email: "{{ demo_username }}@example.com"
-          title: instruqt_demo
-        status_code: 201
+          title: "instruqt_demo"
       register: user_create
       when: not cleanup
 
     - name: attach role to new user
-      uri:
-        url: "{{ instance }}/api/now/table/sys_user_has_role"
-        method: POST
-        user: "{{ username }}"
-        password: "{{ password }}"
-        force_basic_auth: true
-        headers:
-          Content-Type: application/json
-        body_format: json
-        body:
+      servicenow.itsm.api:
+        resource: sys_user_has_role
+        action: post
+        data:
           user: "{{ demo_username }}"
           role: "{{ role }}"
-        status_code: 201
       register: user_role
       when: not cleanup
 
     - name: find user sys_id
-      uri:
-        url: "{{ instance }}/api/now/table/sys_user?sysparm_query=user_name={{ demo_username }}"
-        method: GET
-        user: "{{ username }}"
-        password: "{{ password }}"
-        force_basic_auth: true
-        headers:
-          Content-Type: application/json
-        status_code: 200
+      servicenow.itsm.api_info:
+        resource: sys_user
+        sysparm_query: "user_name={{ demo_username }}"
+        columns:
+          - user_name
+          - sys_id
+          - sys_created_on
       register: user_info
-      when: cleanup
-
-    - name: convert user_info to paths
-      set_fact:
-        user_info_paths: "{{ lookup('ansible.utils.to_paths', user_info) }}"
 
     - name: cleanup user
-      uri:
-        url: "{{ instance }}/api/now/table/sys_user/{{ user_info_paths['json.result[0].sys_id'] }}"
-        method: DELETE
-        user: "{{ username }}"
-        password: "{{ password }}"
-        force_basic_auth: true
-        headers:
-          Content-Type: application/json
-        status_code: 204
+      servicenow.itsm.api:
+        resource: sys_user
+        action: delete
+        sys_id: "{{ user_info.record[0].sys_id }}"
       register: user_delete
       when: cleanup
 
     rescue:
 
-    - name: cleanup user
-      uri:
-        url: "{{ instance }}/api/now/table/sys_user/{{ user_info_paths['json.result[0].sys_id'] }}"
-        method: DELETE
-        user: "{{ username }}"
-        password: "{{ password }}"
-        force_basic_auth: true
-        headers:
-          Content-Type: application/json
-        status_code: 204
-      register: user_delete
+    - ansible.builtin.debug:
+        msg: "Something failed, deleting user"
 
+    - name: cleanup user
+      servicenow.itsm.api:
+        resource: sys_user
+        action: delete
+        sys_id: "{{ user_info.record[0].sys_id }}"
+      register: user_delete
+      when: cleanup
