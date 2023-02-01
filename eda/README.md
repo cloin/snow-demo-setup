@@ -2,6 +2,15 @@
 
 This directory contains an example source plugin (`new_records.py`) for Event-Drive Ansible (EDA) along with a rulebook and playbook to execute. The source plugin accepts arguments for username, password, ServiceNow instance and table (the table you want to watch for new records being created).
 
+## Testing
+
+### pre-requisites
+- ansible-rulebook>=0.10.1 [[install instructions]](https://github.com/ansible/event-driven-ansible#getting-started)
+- ansible-core>=2.14.1
+- ansible collection(s):
+    - ansible.eda>=1.3.3
+----
+
 - To test the script independently, first set environment variables for `SN_HOST`, `SN_USERNAME`, `SN_PASSWORD` and `SN_TABLE` and run:
 ~~~
 python new_records.py
