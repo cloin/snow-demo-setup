@@ -1,6 +1,7 @@
 ---
 - name: close old incidents from list
   servicenow.itsm.incident:
+    incident_mapping: "{{ mapping.incident }}"
     state: closed
     number: "{{ item.number }}"
     close_code: "Solved (Permanently)"
@@ -12,7 +13,8 @@
 
 - name: close old problems from list
   servicenow.itsm.problem:
-    state: Closed
+    problem_mapping: "{{ mapping.problem }}"
+    state: closed
     assigned_to: "{{ username }}"
     number: "{{ item.number }}"
   with_items: "{{ problem_list }}"
