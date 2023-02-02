@@ -43,7 +43,8 @@
           - sys_id
       register: tag_info
 
-    - ansible.builtin.set_fact:
+    - name: Set tag_id fact
+      ansible.builtin.set_fact:
         tag_id: "{{ tag_info.record[0].sys_id }}"
 
     - name: Get tagged incidents
@@ -54,7 +55,7 @@
           ^active=true
         sysparm_display_value: false
       register: incidents
-  
+
     - name: Get tagged problems
       servicenow.itsm.problem_info:
         sysparm_query:
@@ -81,35 +82,36 @@
         sysparm_display_value: false
       register: config_items
 
-    - set_fact:
+    - name: Create lists
+      ansible.builtin.set_fact:
         incident_list: []
         problem_list: []
         change_list: []
         config_item_list: []
 
-    - name: query incident number and creation time 
-      set_fact:
+    - name: Query incident number and creation time
+      ansible.builtin.set_fact:
         incident_list: '{{ incident_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
       loop: "{{ incidents.records }}"
-      when: incidents
+      when: incidents is defined
 
-    - name: query problem number and creation time 
-      set_fact:
+    - name: Query problem number and creation time
+      ansible.builtin.set_fact:
         problem_list: '{{ problem_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
       loop: "{{ problems.records }}"
-      when: problems
+      when: problems is defined
 
-    - name: query change number and creation time 
-      set_fact:
+    - name: Query change number and creation time
+      ansible.builtin.set_fact:
         change_list: '{{ change_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
       loop: "{{ changes.records }}"
-      when: changes
+      when: changes is defined
 
-    - name: query config item sys_id and creation time 
-      set_fact:
+    - name: Query config item sys_id and creation time
+      ansible.builtin.set_fact:
         config_item_list: '{{ config_item_list + [{"sys_id": item.sys_id, "opened_at": item.sys_created_on}] }}'
       loop: "{{ config_items.records }}"
       when: config_items is defined
 
-    - name: clean up records
-      include_tasks: close-records.yml
+    - name: Clean up records
+      ansible.builtin.include_tasks: close-records.yml

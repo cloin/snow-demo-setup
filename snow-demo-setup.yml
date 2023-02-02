@@ -1,5 +1,5 @@
 ---
-- name: configure SNOW user for demo environment
+- name: Configure SNOW user for demo environment
   hosts: 127.0.0.1
   connection: local
   become: false
@@ -23,67 +23,64 @@
 
   tasks:
 
-  - name: set first name for user
-    set_fact:
-      first_name: "{{ ['Craig','Dafne','Nuno','Roger','Monish','Anshul','Hicham','Sean','Andrius','Tom','Colin'] | random }}"
+  - name: Set first name for user
+    ansible.builtin.set_fact:
+      first_name: "{{ ['Craig', 'Dafne', 'Nuno', 'Roger', 'Monish', 'Anshul', 'Hicham', 'Sean', 'Andrius', 'Tom', 'Colin'] | random }}"
 
-  - name: create user with the proper servicenow role
+  - name: Create user with the proper servicenow role
     block:
 
-    - name: create user
-      servicenow.itsm.api:
-        resource: sys_user
-        action: post
-        query_params:
-          sysparm_input_display_value: true
-        data:
-          user_name: "{{ demo_username }}"
-          user_password: "{{ demo_password }}"
-          first_name: "{{ first_name }}"
-          last_name: "Demouser"
-          department: "IT"
-          email: "{{ demo_username }}@example.com"
-          title: "instruqt_demo"
-      register: user_create
-      when: not cleanup
+      - name: Create user
+        servicenow.itsm.api:
+          resource: sys_user
+          action: post
+          query_params:
+            sysparm_input_display_value: true
+          data:
+            user_name: "{{ demo_username }}"
+            user_password: "{{ demo_password }}"
+            first_name: "{{ first_name }}"
+            last_name: "Demouser"
+            department: "IT"
+            email: "{{ demo_username }}@example.com"
+            title: "instruqt_demo"
+        register: user_create
+        when: not cleanup
 
-    - name: attach role to new user
-      servicenow.itsm.api:
-        resource: sys_user_has_role
-        action: post
-        data:
-          user: "{{ demo_username }}"
-          role: "{{ role }}"
-      register: user_role
-      when: not cleanup
+      - name: Attach role to new user
+        servicenow.itsm.api:
+          resource: sys_user_has_role
+          action: post
+          data:
+            user: "{{ demo_username }}"
+            role: "{{ role }}"
+        register: user_role
+        when: not cleanup
 
-    - name: find user sys_id
-      servicenow.itsm.api_info:
-        resource: sys_user
-        sysparm_query: "user_name={{ demo_username }}"
-        columns:
-          - user_name
-          - sys_id
-          - sys_created_on
-      register: user_info
+      - name: Find user sys_id
+        servicenow.itsm.api_info:
+          resource: sys_user
+          sysparm_query: "user_name={{ demo_username }}"
+          columns:
+            - user_name
+            - sys_id
+            - sys_created_on
+        register: user_info
 
-    - name: cleanup user
-      servicenow.itsm.api:
-        resource: sys_user
-        action: delete
-        sys_id: "{{ user_info.record[0].sys_id }}"
-      register: user_delete
-      when: cleanup
+      - name: Cleanup user
+        servicenow.itsm.api:
+          resource: sys_user
+          action: delete
+          sys_id: "{{ user_info.record[0].sys_id }}"
+        register: user_delete
+        when: cleanup
 
     rescue:
 
-    - ansible.builtin.debug:
-        msg: "Something failed, deleting user"
-
-    - name: cleanup user
-      servicenow.itsm.api:
-        resource: sys_user
-        action: delete
-        sys_id: "{{ user_info.record[0].sys_id }}"
-      register: user_delete
-      when: cleanup
+      - name: Cleanup user
+        servicenow.itsm.api:
+          resource: sys_user
+          action: delete
+          sys_id: "{{ user_info.record[0].sys_id }}"
+        register: user_delete
+        when: cleanup
