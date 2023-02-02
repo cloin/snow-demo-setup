@@ -1,5 +1,5 @@
 ---
-- name: Find records by tag
+- name: Find and close records by tag
   hosts: localhost
   connection: local
   gather_facts: true
