@@ -60,6 +60,7 @@
         sysparm_query:
           sys_tags.{{ tag_id }}={{ tag_id }}
           ^active=true
+          ^state!=closed
         sysparm_display_value: false
       register: problems
 
