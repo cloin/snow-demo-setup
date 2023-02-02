@@ -1,3 +1,4 @@
 aiohttp==3.8.3
 ansible-core==2.14.1
 ansible-navigator==2.2.0
+ansible-lint==6.12.0
