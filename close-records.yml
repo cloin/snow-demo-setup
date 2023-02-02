@@ -33,3 +33,12 @@
     - change_list is defined
     - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200
 
+- name: close old config items from list
+  servicenow.itsm.configuration_item:
+    state: absent
+    sys_id: "{{ item.sys_id }}"
+  with_items: "{{ config_item_list }}"
+  when: 
+    - config_item_list is defined
+    - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200
+

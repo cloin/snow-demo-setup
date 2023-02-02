@@ -72,10 +72,19 @@
         sysparm_display_value: false
       register: changes
 
+    - name: Get tagged config items
+      servicenow.itsm.configuration_item_info:
+        sysparm_query:
+          sys_tags.{{ tag_id }}={{ tag_id }}
+          ^active=true
+        sysparm_display_value: false
+      register: config_items
+
     - set_fact:
         incident_list: []
         problem_list: []
         change_list: []
+        config_item_list: []
 
     - name: query incident number and creation time 
       set_fact:
@@ -94,6 +103,12 @@
         change_list: '{{ change_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
       loop: "{{ changes.records }}"
       when: changes
+
+    - name: query config item sys_id and creation time 
+      set_fact:
+        config_item_list: '{{ config_item_list + [{"sys_id": item.sys_id, "opened_at": item.sys_created_on}] }}'
+      loop: "{{ config_items.records }}"
+      when: config_items is defined
 
     - name: clean up records
       include_tasks: close-records.yml
