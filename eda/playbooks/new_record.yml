@@ -5,11 +5,11 @@
 
   tasks:
     - name: Print record information
-      debug:
+      ansible.builtin.debug:
         msg: "Record: {{ event.number }}, Description: {{ event.short_description }}"
       when: event.number is defined
 
     - name: Print record information
-      debug:
+      ansible.builtin.debug:
         msg: "Record: {{ event.sys_id }}, Description: {{ event.name }}"
       when: event.number is undefined

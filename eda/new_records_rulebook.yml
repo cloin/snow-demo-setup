@@ -4,7 +4,7 @@
     - new_records:
         instance: "{{ SN_HOST }}"
         username: "{{ SN_USERNAME }}"
-        password: "{{ SN_PASSWORD }}" 
+        password: "{{ SN_PASSWORD }}"
         table: incident
         interval: 1
   rules:

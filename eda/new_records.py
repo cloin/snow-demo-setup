@@ -77,7 +77,7 @@ if __name__ == "__main__":
     table    = os.environ.get('SN_TABLE')
 
     class MockQueue:
-        print(f"Waiting for events on {table}...")
+        print(f"Waiting for events on '{table}' table...")
         async def put(self, event):
             print(event)
 
