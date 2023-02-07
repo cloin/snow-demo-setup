@@ -27,6 +27,8 @@ ansible-rulebook --rulebook new_records_rulebook.yml \
 
 In above command, `-S` tells `ansible-rulebook` where to look for source plugins. Typically, these source plugins would be contained within an ansible collection, but this flag works well for testing.
 
+`--print-events` is useful to show the entire event that triggered the action. With this enabled, you'll see all event data printed before the playbook output. 
+
 The `--env-vars` flag passes the specified environment variables into the execution of this rulebook. These environment variables match the names of the variable pulled in as a part of the arguents passed into the source plugin as defined in the source configuration in the rulebook:
 
 ~~~
