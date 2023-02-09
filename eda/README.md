@@ -2,6 +2,8 @@
 
 This directory contains an example source plugin (`new_records.py`) for Event-Drive Ansible (EDA) along with a rulebook and playbook to execute. The source plugin accepts arguments for username, password, ServiceNow instance and table (the table you want to watch for new records being created).
 
+**Before you go out and test** my example plugin, please know that this plugin is coming from a sub-par python person, is meant to be an example and not at all endorsed or suggested for production use. ServiceNow instances also have rate limit rules for REST resources that you may hit by polling too often. Considering that the event push paradigm is preferred for Event-Driven Ansible source plugins, a better implementation of this source plugin might be to create a ServiceNow webservice to push event details to an event aggregator! In this scenario, our integrated application (ServiceNow) would PUSH event details to something like JetStream or Kafka (for which there is [already an event source plugin](https://github.com/ansible/event-driven-ansible/blob/main/plugins/event_source/kafka.py)!).
+
 ## Testing
 
 ### pre-requisites
