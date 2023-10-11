@@ -74,6 +74,7 @@
           sys_id: "{{ user_info.record[0].sys_id }}"
         register: user_delete
         when: cleanup
+        ignore_errors: true
 
     rescue:
 
@@ -84,3 +85,4 @@
           sys_id: "{{ user_info.record[0].sys_id }}"
         register: user_delete
         when: cleanup
+        ignore_errors: true
