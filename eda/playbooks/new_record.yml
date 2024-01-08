@@ -7,9 +7,9 @@
     - name: Print record information
       when: event.number is defined
       ansible.builtin.debug:
-        msg: "Record: {{ event.number }}, Description: {{ event.short_description }}"
+        msg: "Record: {{ ansible_eda.event.number }}, Description: {{ ansible_eda.event.short_description }}"
 
     - name: Print record information
       when: event.number is undefined
       ansible.builtin.debug:
-        msg: "Record: {{ event.sys_id }}, Description: {{ event.name }}"
+        msg: "Record: {{ ansible_eda.event.sys_id }}, Description: {{ ansible_eda.event.name }}"
