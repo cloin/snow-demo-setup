@@ -1,43 +1,47 @@
 ---
-- name: Close old incidents from list
+- name: Old incident(s) to remove - {{ incident_list.count }}
   servicenow.itsm.incident:
     incident_mapping: "{{ mapping.incident }}"
     state: closed
     number: "{{ item.number }}"
     close_code: "Solved (Permanently)"
     close_notes: "Closed with ansible servicenow.itsm"
-  with_items: "{{ incident_list }}"
+  loop: "{{ incident_list.incidents }}"
   when:
-    - incident_list is defined
+    - incident_list.count > 0
+    - incident_list.incidents is defined
     - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200
 
-- name: Close old problems from list
+- name: Old problem(s) to remove - {{ problem_list.count }}
   servicenow.itsm.problem:
     problem_mapping: "{{ mapping.problem }}"
     state: closed
     assigned_to: "{{ username }}"
     number: "{{ item.number }}"
-  with_items: "{{ problem_list }}"
+  loop: "{{ problem_list.problems }}"
   when:
+    - problem_list.count > 0
     - problem_list is defined
     - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200
 
-- name: Close old change requests from list
+- name: Old change(s) to remove - {{ change_list.count }}
   servicenow.itsm.change_request:
     state: closed
     close_code: "successful"
     close_notes: "Closed with ansible servicenow.itsm"
     number: "{{ item.number }}"
-  with_items: "{{ change_list }}"
+  loop: "{{ change_list.changes }}"
   when:
+    - change_list.count > 0
     - change_list is defined
     - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200
 
-- name: Close old config items from list
+- name: Old config item(s) to remove - {{ config_item_list.count }}
   servicenow.itsm.configuration_item:
     state: absent
     sys_id: "{{ item.sys_id }}"
-  with_items: "{{ config_item_list }}"
+  with_items: "{{ config_item_list.config_items }}"
   when:
+    - config_item_list.count > 0
     - config_item_list is defined
     - (( (ansible_date_time.date + ' ' + ansible_date_time.time) | to_datetime) - (item.opened_at | to_datetime)).total_seconds() > 7200

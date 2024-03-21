@@ -60,7 +60,6 @@
       servicenow.itsm.problem_info:
         sysparm_query:
           sys_tags.{{ tag_id }}={{ tag_id }}
-          ^active=true
           ^state!=closed
         sysparm_display_value: false
       register: problems
@@ -82,36 +81,69 @@
         sysparm_display_value: false
       register: config_items
 
-    - name: Create lists
+    - name: Create record lists
       ansible.builtin.set_fact:
-        incident_list: []
-        problem_list: []
-        change_list: []
-        config_item_list: []
+        incident_list:
+          incidents: []
+          count: 0
+        problem_list:
+          problems: []
+          count: 0
+        change_list:
+          changes: []
+          count: 0
+        config_item_list:
+          config_items: []
+          count: 0
 
     - name: Query incident number and creation time
       ansible.builtin.set_fact:
-        incident_list: '{{ incident_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
-      loop: "{{ incidents.records }}"
+        incident_list: >-
+          {{
+          incident_list
+          | combine({'incidents': incident_list.incidents
+          + [{'number': item.number, 'opened_at': item.opened_at}]}, recursive=True)
+          }}
+      loop: "{{ incidents.records | default([]) }}"
       when: incidents is defined
 
-    - name: Query problem number and creation time
+    - name: Query problems number and creation time
       ansible.builtin.set_fact:
-        problem_list: '{{ problem_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
+        problem_list: >-
+          {{
+          problem_list
+          | combine({'problems': problem_list.problems
+          + [{'number': item.number, 'opened_at': item.opened_at}]}, recursive=True)
+          }}
       loop: "{{ problems.records }}"
       when: problems is defined
 
     - name: Query change number and creation time
       ansible.builtin.set_fact:
-        change_list: '{{ change_list + [{"number": item.number, "opened_at": item.opened_at}] }}'
-      loop: "{{ changes.records }}"
+        change_list: >-
+          {{ change_list
+          | combine({'changes': change_list.changes
+          + [{'number': item.number, 'opened_at': item.opened_at}]}, recursive=True) 
+          }}
+      loop: "{{ changes.records | default([]) }}"
       when: changes is defined
 
-    - name: Query config item sys_id and creation time
+    - name: Query config item number and creation time
       ansible.builtin.set_fact:
-        config_item_list: '{{ config_item_list + [{"sys_id": item.sys_id, "opened_at": item.sys_created_on}] }}'
-      loop: "{{ config_items.records }}"
+        config_item_list: >-
+          {{ config_item_list
+          | combine({'config_items': config_item_list.config_items
+          + [{'number': item.number, 'opened_at': item.opened_at}]}, recursive=True)
+          }}
+      loop: "{{ config_items.records | default([]) }}"
       when: config_items is defined
+
+    - name: Update record lists to include record count
+      ansible.builtin.set_fact:
+        incident_list: "{{ incident_list | combine({'count': (incidents.records | default([]) | length)}) }}"
+        problem_list: "{{ problem_list | combine({'count': (problems.records | default([]) | length)}) }}"
+        change_list: "{{ change_list | combine({'count': (changes.records | default([]) | length)}) }}"
+        config_item_list: "{{ config_item_list | combine({'count': (config_items.records | default([]) | length)}) }}"
 
     - name: Clean up records
       ansible.builtin.include_tasks: close-records.yml
