@@ -123,7 +123,7 @@
         change_list: >-
           {{ change_list
           | combine({'changes': change_list.changes
-          + [{'number': item.number, 'opened_at': item.opened_at}]}, recursive=True) 
+          + [{'number': item.sys_id, 'opened_at': item.opened_at}]}, recursive=True) 
           }}
       loop: "{{ changes.records | default([]) }}"
       when: changes is defined
