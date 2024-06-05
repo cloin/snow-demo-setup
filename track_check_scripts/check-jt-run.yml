@@ -1,0 +1,75 @@
+---
+- name: Check/solve job template execution
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    controller_host: "https://localhost"
+    controller_username: "{{ lookup('env', 'ADMIN_CONTROLLER_USERNAME') }}"
+    controller_password: "{{ lookup('env', 'ADMIN_CONTROLLER_PASSWORD') }}"
+    job_template_name: ""
+  tasks:
+
+    - name: Running assert with the following job template
+      ansible.builtin.debug:
+        var: job_template_name
+      tags:
+        - check
+        - solve
+
+    - name: Check if the job template has been run successfully
+      block:
+        - name: Get job runs of the job template
+          awx.awx.job_list:
+            status: "successful"
+            query: {"name": "{{ job_template_name }}"}
+            controller_host: "{{ controller_host }}"
+            controller_username: "{{ controller_username }}"
+            controller_password: "{{ controller_password }}"
+            validate_certs: false
+          register: job_runs
+
+        - name: Assert that the job template was run successfully at least once
+          assert:
+            that:
+              - "job_runs.count > 0"
+            fail_msg: "No successful runs found for job template '{{ job_template_name }}'."
+            success_msg: "A successful run was found for job template '{{ job_template_name }}'."
+      tags: check
+
+    - name: Run the named job template
+      block:
+        - name: Launch the job template
+          awx.awx.job_launch:
+            job_template: "{{ job_template_name }}"
+            controller_host: "{{ controller_host }}"
+            controller_username: "{{ controller_username }}"
+            controller_password: "{{ controller_password }}"
+            validate_certs: false
+          register: job_launch
+
+        - name: Wait for job to finish
+          awx.awx.job_wait:
+            job_id: "{{ job_launch.id }}"
+            controller_host: "{{ controller_host }}"
+            controller_username: "{{ controller_username }}"
+            controller_password: "{{ controller_password }}"
+            validate_certs: false
+
+        - name: Get job runs of the job template
+          awx.awx.job_list:
+            status: "successful"
+            query: {"name": "{{ job_template_name }}"}
+            controller_host: "{{ controller_host }}"
+            controller_username: "{{ controller_username }}"
+            controller_password: "{{ controller_password }}"
+            validate_certs: false
+          register: job_runs
+
+        - name: Assert that the job template was run successfully at least once
+          assert:
+            that:
+              - "job_runs.count > 0"
+            fail_msg: "No successful runs found for job template '{{ job_template_name }}'."
+            success_msg: "A successful run was found for job template '{{ job_template_name }}'."
+      tags: solve
