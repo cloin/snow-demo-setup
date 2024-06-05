@@ -39,7 +39,7 @@
 - name: Old config item(s) to remove - {{ config_item_list.count }}
   servicenow.itsm.configuration_item:
     state: absent
-    sys_id: "{{ item.sys_id }}"
+    sys_id: "{{ item.number }}"
   with_items: "{{ config_item_list.config_items }}"
   when:
     - config_item_list.count > 0

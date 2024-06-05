@@ -133,7 +133,7 @@
         config_item_list: >-
           {{ config_item_list
           | combine({'config_items': config_item_list.config_items
-          + [{'number': item.number, 'opened_at': item.opened_at}]}, recursive=True)
+          + [{'number': item.sys_id, 'opened_at': item.sys_created_on}]}, recursive=True)
           }}
       loop: "{{ config_items.records | default([]) }}"
       when: config_items is defined
