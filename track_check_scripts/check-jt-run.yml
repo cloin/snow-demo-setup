@@ -58,12 +58,8 @@
             controller_username: "{{ controller_username }}"
             controller_password: "{{ controller_password }}"
             validate_certs: false
-          register: job_launch
+          register: job_launch_workflow
           when: workflow_job_template
-
-        - name: debug job_launch
-          ansible.builtin.debug:
-            var: job_launch
 
         - name: Wait for job to finish
           awx.awx.job_wait:
@@ -72,6 +68,16 @@
             controller_username: "{{ controller_username }}"
             controller_password: "{{ controller_password }}"
             validate_certs: false
+          when: not workflow_job_template
+
+        - name: Wait for workflow job to finish
+          awx.awx.job_wait:
+            job_id: "{{ job_launch_workflow.id }}"
+            controller_host: "{{ controller_host }}"
+            controller_username: "{{ controller_username }}"
+            controller_password: "{{ controller_password }}"
+            validate_certs: false
+          when: workflow_job_template
 
         - name: Get job runs of the job template
           awx.awx.job_list:
