@@ -29,12 +29,15 @@
             validate_certs: false
           register: job_runs
 
-        - name: Assert that the job template was run successfully at least once
-          assert:
-            that:
-              - "job_runs.count > 0"
-            fail-message: "No successful runs found for job template '{{ job_template_name }}'."
-            success-message: "A successful run was found for job template '{{ job_template_name }}'."
+        - name: Fail if no successful runs found
+          fail:
+            msg: "No successful runs found for job template '{{ job_template_name }}'."
+          when: job_runs.count == 0
+
+        - name: Success message
+          debug:
+            msg: "A successful run was found for job template '{{ job_template_name }}'."
+          when: job_runs.count > 0
       tags: check
 
     - name: Run the named job template
@@ -66,10 +69,13 @@
             validate_certs: false
           register: job_runs
 
-        - name: Assert that the job template was run successfully at least once
-          assert:
-            that:
-              - "job_runs.count > 0"
-            fail-message: "No successful runs found for job template '{{ job_template_name }}'."
-            success-message: "A successful run was found for job template '{{ job_template_name }}'."
+        - name: Fail if no successful runs found
+          fail:
+            msg: "No successful runs found for job template '{{ job_template_name }}'."
+          when: job_runs.count == 0
+
+        - name: Success message
+          debug:
+            msg: "A successful run was found for job template '{{ job_template_name }}'."
+          when: job_runs.count > 0
       tags: solve
