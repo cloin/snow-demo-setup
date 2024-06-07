@@ -53,7 +53,7 @@
 
         - name: Launch the workflow job template
           awx.awx.workflow_launch:
-            job_template: "{{ workflow_job_template_name }}"
+            workflow_template: "{{ workflow_job_template_name }}"
             controller_host: "{{ controller_host }}"
             controller_username: "{{ controller_username }}"
             controller_password: "{{ controller_password }}"
