@@ -1,0 +1,79 @@
+---
+- name: Manage Inventory Source Updates
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    controller_host: "https://localhost"
+    controller_username: "{{ lookup('env', 'ADMIN_CONTROLLER_USERNAME') }}"
+    controller_password: "{{ lookup('env', 'ADMIN_CONTROLLER_PASSWORD') }}"
+    inventory_update_name: ""
+    inventory_name: ""
+    inventory_source: ""
+    organization_name: ""
+  tasks:
+  
+    - name: Check if the inventory source has been updated successfully
+      block:
+        - name: Load inventory updates
+          set_fact:
+            inventory_updates: "{{ lookup('awx.awx.controller_api', 'inventory_updates', host=controller_host, username=controller_username, password=controller_password, validate_certs=False) }}"
+
+        - name: Debug inventory updates
+          debug:
+            var: inventory_updates
+
+        - name: Ensure inventory_updates is a list
+          set_fact:
+            inventory_updates_list: >
+              {{ inventory_updates | json_query('results[*]') if inventory_updates.results is defined else [inventory_updates] }}
+
+        - name: Debug inventory updates list
+          debug:
+            var: inventory_updates_list
+
+        - name: Flatten inventory updates list
+          set_fact:
+            flattened_inventory_updates_list: "{{ inventory_updates_list | flatten(1) }}"
+
+        - name: Debug flattened inventory updates list
+          debug:
+            var: flattened_inventory_updates_list
+
+        - name: Find specific inventory update
+          set_fact:
+            specific_update: "{{ flattened_inventory_updates_list | selectattr('name', 'equalto', inventory_update_name) | selectattr('status', 'equalto', 'successful') | list }}"
+
+        - name: Assert specific update found
+          assert:
+            that:
+              - specific_update | length > 0
+            fail_msg: "The inventory update '{{ inventory_update_name }}' was not found or was not successful."
+            success_msg: "The inventory update '{{ inventory_update_name }}' was found and was successful."
+
+        - name: Debug specific update
+          debug:
+            var: specific_update
+      tags: check
+
+    - name: Execute the inventory source update
+      block:
+        - name: Update inventory source
+          awx.awx.inventory_source_update:
+            name: "{{ inventory_source }}"
+            inventory: "{{ inventory_name }}"
+            organization: "{{ organization_name }}"
+            controller_host: "{{ controller_host }}"
+            controller_username: "{{ controller_username }}"
+            controller_password: "{{ controller_password }}"
+            validate_certs: false
+          register: inventory_update
+
+        # - name: Wait for inventory source update to complete
+        #   awx.awx.job_wait:
+        #     job_id: "{{ inventory_update.id }}"
+        #     controller_host: "{{ controller_host }}"
+        #     controller_username: "{{ controller_username }}"
+        #     controller_password: "{{ controller_password }}"
+        #     validate_certs: false
+      tags: solve
