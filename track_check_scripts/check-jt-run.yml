@@ -61,6 +61,10 @@
           register: job_launch
           when: workflow_job_template
 
+        - name: debug job_launch
+          ansible.builtin.debug:
+            var: job_launch
+
         - name: Wait for job to finish
           awx.awx.job_wait:
             job_id: "{{ job_launch.id }}"
