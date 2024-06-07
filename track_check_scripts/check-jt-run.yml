@@ -33,8 +33,8 @@
           assert:
             that:
               - "job_runs.count > 0"
-            fail_msg: "No successful runs found for job template '{{ job_template_name }}'."
-            success_msg: "A successful run was found for job template '{{ job_template_name }}'."
+            fail-message: "No successful runs found for job template '{{ job_template_name }}'."
+            success-message: "A successful run was found for job template '{{ job_template_name }}'."
       tags: check
 
     - name: Run the named job template
@@ -70,6 +70,6 @@
           assert:
             that:
               - "job_runs.count > 0"
-            fail_msg: "No successful runs found for job template '{{ job_template_name }}'."
-            success_msg: "A successful run was found for job template '{{ job_template_name }}'."
+            fail-message: "No successful runs found for job template '{{ job_template_name }}'."
+            success-message: "A successful run was found for job template '{{ job_template_name }}'."
       tags: solve
