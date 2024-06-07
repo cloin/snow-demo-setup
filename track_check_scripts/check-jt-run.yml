@@ -29,14 +29,12 @@
             validate_certs: false
           register: job_runs
 
-        - name: Check if job runs count is greater than 0
-          shell: |
-            if [ {{ job_runs.count }} -eq 0 ]; then
-              echo "FAIL: No successful runs found for job template '{{ job_template_name }}'."
-              exit 1
-            else
-              echo "SUCCESS: A successful run was found for job template '{{ job_template_name }}'."
-            fi
+        - name: Assert that the job template was run successfully at least once
+          assert:
+            that:
+              - "job_runs.count > 0"
+            fail-message: "No successful runs found for job template '{{ job_template_name }}'."
+            success-message: "A successful run was found for job template '{{ job_template_name }}'."
       tags: check
 
     - name: Run the named job template
@@ -68,12 +66,10 @@
             validate_certs: false
           register: job_runs
 
-        - name: Check if job runs count is greater than 0
-          shell: |
-            if [ {{ job_runs.count }} -eq 0 ]; then
-              echo "FAIL: No successful runs found for job template '{{ job_template_name }}'."
-              exit 1
-            else
-              echo "SUCCESS: A successful run was found for job template '{{ job_template_name }}'."
-            fi
+        - name: Assert that the job template was run successfully at least once
+          assert:
+            that:
+              - "job_runs.count > 0"
+            fail-message: "No successful runs found for job template '{{ job_template_name }}'."
+            success-message: "A successful run was found for job template '{{ job_template_name }}'."
       tags: solve
