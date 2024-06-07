@@ -8,6 +8,8 @@
     controller_username: "{{ lookup('env', 'ADMIN_CONTROLLER_USERNAME') }}"
     controller_password: "{{ lookup('env', 'ADMIN_CONTROLLER_PASSWORD') }}"
     job_template_name: ""
+    workflow_job_template: false
+    workflow_job_template_name: ""
   tasks:
 
     - name: Running assert with the following job template
@@ -37,7 +39,7 @@
             success_msg: "A successful run was found for job template '{{ job_template_name }}'."
       tags: check
 
-    - name: Run the named job template
+    - name: Run the named job
       block:
         - name: Launch the job template
           awx.awx.job_launch:
@@ -47,6 +49,17 @@
             controller_password: "{{ controller_password }}"
             validate_certs: false
           register: job_launch
+          when: not workflow_job_template
+
+        - name: Launch the workflow job template
+          awx.awx.workflow_launch:
+            job_template: "{{ workflow_job_template_name }}"
+            controller_host: "{{ controller_host }}"
+            controller_username: "{{ controller_username }}"
+            controller_password: "{{ controller_password }}"
+            validate_certs: false
+          register: job_launch
+          when: workflow_job_template
 
         - name: Wait for job to finish
           awx.awx.job_wait:
