@@ -69,11 +69,11 @@
             validate_certs: false
           register: inventory_update
 
-        # - name: Wait for inventory source update to complete
-        #   awx.awx.job_wait:
-        #     job_id: "{{ inventory_update.id }}"
-        #     controller_host: "{{ controller_host }}"
-        #     controller_username: "{{ controller_username }}"
-        #     controller_password: "{{ controller_password }}"
-        #     validate_certs: false
+        - name: Wait for inventory source update to complete
+          awx.awx.job_wait:
+            job_id: "{{ inventory_update.id }}"
+            controller_host: "{{ controller_host }}"
+            controller_username: "{{ controller_username }}"
+            controller_password: "{{ controller_password }}"
+            validate_certs: false
       tags: solve
