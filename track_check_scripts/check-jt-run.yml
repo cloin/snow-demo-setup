@@ -73,6 +73,7 @@
         - name: Wait for workflow job to finish
           awx.awx.job_wait:
             job_id: "{{ job_launch_workflow.id }}"
+            job_type: workflow_jobs
             controller_host: "{{ controller_host }}"
             controller_username: "{{ controller_username }}"
             controller_password: "{{ controller_password }}"
