@@ -1,6 +1,7 @@
 - name: Retrieve catalog item details and ServiceNow request by REQ
   hosts: localhost
-  gather_facts: no
+  connection: local
+  gather_facts: false
 
   vars:
     req_sys_id: "{{ ansible_eda.event.payload.sys_id }}"
