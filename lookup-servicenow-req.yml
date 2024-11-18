@@ -82,10 +82,10 @@
           {{
             ritm_details | map('combine', {
               'variables': (
-                variable_mappings.record | selectattr('request_item.value', 'equalto', item.sys_id.value) | map(attribute='sc_item_option.value') | map('extract', variable_details.record, 'sys_id') | select('defined') | map('combine', {
-                  'name': variable_name_dict[item.item_option_new.value],
+                variable_mappings.record | selectattr('request_item.value', 'equalto', item.sys_id.value) | map(attribute='sc_item_option.value') | map('extract', variable_details.record | map('combine', {
+                  'name': variable_name_dict[item.item_option_new.value | default('')],
                   'value': item.value
-                }) | list
+                }), 'sys_id') | select('defined') | list
               )
             })
           }}
