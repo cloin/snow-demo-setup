@@ -23,10 +23,9 @@
       when: ritms.record | length > 0
 
     - name: Set catalog item name if found
-      ansible.builtin.set_stats:
-        data:
-          catalog_item_name: "{{ catalog_item_name_result.record[0].name | default('Unknown Item') }}"
-        # cacheable: true
+      ansible.builtin.set_fact:
+        catalog_item_name: "{{ catalog_item_name_result.record[0].name | default('Unknown Item') }}"
+        cacheable: true
       when: catalog_item_name_result.record | length > 0
 
     - name: Retrieve sc_item_option IDs for each RITM
@@ -62,6 +61,20 @@
       loop: "{{ variable_details.record }}"
       loop_control:
         label: "{{ item.item_option_new.value }}"
+
+    - name: Consolidate all facts and original event into set_stats
+      ansible.builtin.set_stats:
+        data:
+          consolidated_facts: >
+            {{
+              {
+                'req_sys_id': req_sys_id,
+                'ritm_details': ritm_details,
+                'variables': variables,
+                'catalog_item_name': catalog_item_name
+              }
+            }}
+          original_event: "{{ ansible_eda.event }}"
 
     - name: Display collected variables and catalog item name
       ansible.builtin.debug:
