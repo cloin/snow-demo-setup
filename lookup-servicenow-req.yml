@@ -66,9 +66,9 @@
             dict(
               ritm_details | map(attribute='sys_id.value') | zip(
                 ritm_details | map('combine', dict(
-                  variables=variable_details.record | selectattr('sys_id', 'in', variable_mappings.record | selectattr('request_item.value', 'equalto', item.sys_id.value) | map(attribute='sc_item_option.value')) | map(
+                  variables=variable_details.record | selectattr('sys_id', 'in', variable_mappings.record | selectattr('request_item.value', 'equalto', item.sys_id.value) | map(attribute='sc_item_option.value')) | selectattr('item_option_new', 'defined') | map(
                     'combine', dict(
-                      name=variable_name_dict[item.item_option_new.value],
+                      name=variable_name_dict[item.item_option_new.value | default('')],
                       value=item.value
                     )
                   )
