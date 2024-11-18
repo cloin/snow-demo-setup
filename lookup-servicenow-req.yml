@@ -14,13 +14,19 @@
         columns: [sys_id, number, description, short_description]
       register: ritms
 
+    - name: Set RITM details fact
+      ansible.builtin.set_fact:
+        ritm_details: "{{ ritms.record }}"
+        cacheable: true
+      when: ritms.record | length > 0
+
     - name: Retrieve catalog item name based on short description
       servicenow.itsm.api_info:
         resource: sc_cat_item
-        sysparm_query: "short_description={{ ritms.record[0].short_description }}"
+        sysparm_query: "short_description={{ ritm_details[0].short_description }}"
         columns: [name]
       register: catalog_item_name_result
-      when: ritms.record | length > 0
+      when: ritm_details | length > 0
 
     - name: Set catalog item name if found
       ansible.builtin.set_fact:
@@ -31,9 +37,10 @@
     - name: Retrieve sc_item_option IDs for each RITM
       servicenow.itsm.api_info:
         resource: sc_item_option_mtom
-        sysparm_query: request_itemIN{{ ritms.record | map(attribute='sys_id') | join(',') }}
+        sysparm_query: request_itemIN{{ ritm_details | map(attribute='sys_id') | join(',') }}
         columns: [sc_item_option]
       register: variable_mappings
+      when: ritm_details | length > 0
 
     - name: Retrieve variable values and item_option_new IDs
       servicenow.itsm.api_info:
@@ -41,6 +48,7 @@
         sysparm_query: "sys_idIN{{ variable_mappings.record | map(attribute='sc_item_option.value') | join(',') }}"
         columns: [item_option_new, value]
       register: variable_details
+      when: variable_mappings.record | length > 0
 
     - name: Retrieve variable names using item_option_new IDs
       servicenow.itsm.api_info:
@@ -48,11 +56,13 @@
         sysparm_query: "sys_idIN{{ variable_details.record | map(attribute='item_option_new.value') | join(',') }}"
         columns: [sys_id, name]
       register: variable_names
+      when: variable_details.record | length > 0
 
     - name: Create dictionary of variable names by sys_id
       ansible.builtin.set_fact:
         variable_name_dict: "{{ dict(variable_names.record | map(attribute='sys_id') | zip(variable_names.record | map(attribute='name'))) }}"
         cacheable: true
+      when: variable_names.record | length > 0
 
     - name: Combine variable names and values
       ansible.builtin.set_fact:
@@ -61,6 +71,15 @@
       loop: "{{ variable_details.record }}"
       loop_control:
         label: "{{ item.item_option_new.value }}"
+      when: variable_details.record | length > 0
+
+    - name: Debug variables before setting stats
+      ansible.builtin.debug:
+        msg:
+          - "req_sys_id: {{ req_sys_id }}"
+          - "ritm_details: {{ ritm_details | default('Not Defined') }}"
+          - "variables: {{ variables | default([]) }}"
+          - "catalog_item_name: {{ catalog_item_name | default('Unknown Item') }}"
 
     - name: Consolidate all facts and original event into set_stats
       ansible.builtin.set_stats:
@@ -68,17 +87,17 @@
           consolidated_facts: >
             {{
               {
-                'req_sys_id': req_sys_id,
-                'ritm_details': ritm_details,
-                'variables': variables,
-                'catalog_item_name': catalog_item_name
+                'req_sys_id': req_sys_id | default('Unknown Request ID'),
+                'ritm_details': ritm_details | default([]),
+                'variables': variables | default([]),
+                'catalog_item_name': catalog_item_name | default('Unknown Item')
               }
             }}
-          original_event: "{{ ansible_eda.event }}"
+          original_event: "{{ ansible_eda.event | default({}) }}"
 
     - name: Display collected variables and catalog item name
       ansible.builtin.debug:
         msg:
           catalog_item_name: "{{ catalog_item_name | default('Not Found') }}"
-          ritm_details: "{{ ritms.record }}"
+          ritm_details: "{{ ritm_details }}"
           variables: "{{ variables }}"
