@@ -19,18 +19,15 @@
       ansible.builtin.debug:
         var: ritms
 
-    - name: Set RITM details fact and catalog item name
+    - name: Set RITM details fact
       ansible.builtin.set_fact:
         ritm_details: "{{ ritms.record }}"
-        catalog_item_name: "{{ ritm_details[0].cat_item.display_value | default('Unknown Item') }}"
         cacheable: true
       when: ritms.record | length > 0
 
-    - name: Debug RITM details fact and catalog item name
+    - name: Debug RITM details fact
       ansible.builtin.debug:
-        msg:
-          ritm_details: "{{ ritm_details }}"
-          catalog_item_name: "{{ catalog_item_name }}"
+        var: ritm_details
 
     - name: Retrieve sc_item_option IDs for each RITM
       servicenow.itsm.api_info:
@@ -80,14 +77,14 @@
                 'req_sys_id': req_sys_id | default('Unknown Request ID'),
                 'ritm_details': ritm_details | default([]),
                 'variables': variables | default([]),
-                'catalog_item_name': catalog_item_name | default('Unknown Item')
+                'catalog_item': ritm_details[0].cat_item.display_value | default('Unknown Item')
               }
             }}
           original_event: "{{ ansible_eda.event | default({}) }}"
 
-    - name: Display collected variables and catalog item name
+    - name: Display collected variables and catalog item
       ansible.builtin.debug:
         msg:
-          catalog_item_name: "{{ catalog_item_name | default('Not Found') }}"
+          catalog_item: "{{ ritm_details[0].cat_item.display_value | default('Not Found') }}"
           ritm_details: "{{ ritm_details }}"
           variables: "{{ variables }}"
