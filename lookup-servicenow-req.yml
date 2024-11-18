@@ -4,7 +4,7 @@
   gather_facts: false
 
   vars:
-    req_sys_id: "{{ ansible_eda.event.payload.sys_id }} | default('YOUR_REQ_SYS_ID')"
+    req_sys_id: "{{ ansible_eda.event.payload.sys_id }}"
 
   tasks:
     - name: Retrieve RITM details with additional fields
