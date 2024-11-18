@@ -27,6 +27,10 @@
         ritm_details: "{{ ritms.record }}"
         cacheable: true
 
+    - name: Debug RITM details fact
+      ansible.builtin.debug:
+        var: ritm_details
+
     - name: Retrieve variable mappings with retries
       servicenow.itsm.api_info:
         resource: sc_item_option_mtom
@@ -38,6 +42,11 @@
       retries: 3
       delay: 5
 
+    - name: Debug variable mappings
+      ansible.builtin.debug:
+        var: variable_mappings.record
+      when: variable_mappings.record is defined
+
     - name: Retrieve variable details in one query
       servicenow.itsm.api_info:
         resource: sc_item_option
@@ -45,6 +54,11 @@
         columns: [item_option_new, value, sys_id]
       register: variable_details
       when: variable_mappings.record | length > 0
+
+    - name: Debug variable details
+      ansible.builtin.debug:
+        var: variable_details.record
+      when: variable_details.record is defined
 
     - name: Retrieve variable names using item_option_new IDs
       servicenow.itsm.api_info:
@@ -54,11 +68,21 @@
       register: variable_names
       when: variable_details.record | length > 0
 
+    - name: Debug variable names
+      ansible.builtin.debug:
+        var: variable_names.record
+      when: variable_names.record is defined
+
     - name: Create dictionary of variable names by sys_id
       ansible.builtin.set_fact:
         variable_name_dict: "{{ dict(variable_names.record | map(attribute='sys_id') | zip(variable_names.record | map(attribute='name'))) }}"
         cacheable: true
       when: variable_names.record | length > 0
+
+    - name: Debug variable name dictionary
+      ansible.builtin.debug:
+        var: variable_name_dict
+      when: variable_name_dict is defined
 
     - name: Combine variable names and values grouped by RITM
       ansible.builtin.set_fact:
@@ -75,6 +99,10 @@
       loop_control:
         label: "{{ item.item_option_new.value }}"
       when: variable_details.record | length > 0
+
+    - name: Debug ritm_variables
+      ansible.builtin.debug:
+        var: ritm_variables
 
     - name: Consolidate all facts and original event into set_stats
       ansible.builtin.set_stats:
