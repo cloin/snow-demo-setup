@@ -15,6 +15,10 @@
         columns: [sys_id, number, description, short_description, cat_item]
       register: ritms
 
+    - name: Debug RITMS
+      ansible.builtin.debug:
+        var: ritms
+
     - name: Set RITM details fact and catalog item name
       ansible.builtin.set_fact:
         ritm_details: "{{ ritms.record }}"
