@@ -86,7 +86,7 @@
                 | selectattr('request_item.value', 'equalto', item.sys_id.value)
                 | map(attribute='sc_item_option.value')
                 | map('extract', variable_details.record | map('combine', {
-                    'name': variable_name_dict[item.item_option_new.value | default('undefined')],
+                    'name': (variable_name_dict[item.item_option_new.value | default('')] | default('unknown')),
                     'value': item.value
                   }), 'sys_id')
                 | select('defined') | list
