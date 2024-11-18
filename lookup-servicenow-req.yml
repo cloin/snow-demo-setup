@@ -7,17 +7,18 @@
     req_sys_id: "{{ ansible_eda.event.payload.sys_id }}"
 
   tasks:
-    - name: Retrieve RITM details with additional fields
+    - name: Retrieve RITM details with additional fields and catalog item name
       servicenow.itsm.api_info:
         resource: sc_req_item
         sysparm_query: request={{ req_sys_id }}
-        columns: [sys_id, number, description, short_description, cat_item.name]
+        display_value: all
+        columns: [sys_id, number, description, short_description, cat_item]
       register: ritms
 
     - name: Set RITM details fact and catalog item name
       ansible.builtin.set_fact:
         ritm_details: "{{ ritms.record }}"
-        catalog_item_name: "{{ ritms.record[0].cat_item.name | default('Unknown Item') }}"
+        catalog_item_name: "{{ ritm_details[0].cat_item.display_value | default('Unknown Item') }}"
         cacheable: true
       when: ritms.record | length > 0
 
@@ -59,14 +60,6 @@
       loop_control:
         label: "{{ item.item_option_new.value }}"
       when: variable_details.record | length > 0
-
-    - name: Debug variables before setting stats
-      ansible.builtin.debug:
-        msg:
-          - "req_sys_id: {{ req_sys_id }}"
-          - "ritm_details: {{ ritm_details | default('Not Defined') }}"
-          - "variables: {{ variables | default([]) }}"
-          - "catalog_item_name: {{ catalog_item_name | default('Unknown Item') }}"
 
     - name: Consolidate all facts and original event into set_stats
       ansible.builtin.set_stats:
