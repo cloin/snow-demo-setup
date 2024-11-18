@@ -27,22 +27,21 @@
         ritm_details: "{{ ritms.record }}"
         cacheable: true
 
-    - name: Retrieve variable mappings with retries
+    - name: Retrieve variable mappings for all RITMs
       servicenow.itsm.api_info:
         resource: sc_item_option_mtom
         sysparm_query: request_itemIN{{ ritm_details | map(attribute='sys_id.value') | join(',') }}
-        columns: [sc_item_option]
+        columns: [request_item, sc_item_option]
       register: variable_mappings
       when: ritm_details | length > 0
-      until: variable_mappings.record is defined and variable_mappings.record | length > 0
       retries: 3
       delay: 5
 
-    - name: Retrieve variable details in one query
+    - name: Retrieve variable details for all mappings
       servicenow.itsm.api_info:
         resource: sc_item_option
         sysparm_query: "sys_idIN{{ variable_mappings.record | map(attribute='sc_item_option.value') | join(',') }}"
-        columns: [item_option_new, value, sys_id]
+        columns: [item_option_new, value, sys_id, request_item]
       register: variable_details
       when: variable_mappings.record | length > 0
 
@@ -60,14 +59,27 @@
         cacheable: true
       when: variable_names.record | length > 0
 
-    - name: Combine variable names and values
+    - name: Organize variables by RITM
       ansible.builtin.set_fact:
-        variables: "{{ variables | default([]) + [{'name': variable_name_dict[item.item_option_new.value], 'value': item.value}] }}"
-        cacheable: true
-      loop: "{{ variable_details.record }}"
-      loop_control:
-        label: "{{ item.item_option_new.value }}"
-      when: variable_details.record | length > 0
+        ritm_variables: >
+          {{
+            dict(
+              ritm_details | map(attribute='sys_id.value') | zip(
+                ritm_details | map(
+                  'combine', 
+                  dict(
+                    variables=variable_details.record | selectattr('request_item', 'equalto', item.sys_id.value) | list | map(
+                      dict(
+                        name=variable_name_dict[item.item_option_new.value],
+                        value=item.value
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          }}
+      when: ritm_details | length > 0
 
     - name: Consolidate all facts and original event into set_stats
       ansible.builtin.set_stats:
@@ -77,15 +89,12 @@
               {
                 'req_sys_id': req_sys_id | default('Unknown Request ID'),
                 'ritm_details': ritm_details | default([]),
-                'variables': variables | default([]),
+                'ritm_variables': ritm_variables | default({}),
                 'catalog_item': ritm_details[0].cat_item.display_value | default('Unknown Item')
               }
             }}
           original_event: "{{ ansible_eda.event | default({}) }}"
 
-    - name: Display collected variables and catalog item
+    - name: Display enriched event details
       ansible.builtin.debug:
-        msg:
-          catalog_item: "{{ ritm_details[0].cat_item.display_value | default('Not Found') }}"
-          ritm_details: "{{ ritm_details }}"
-          variables: "{{ variables }}"
+        var: enriched_event
