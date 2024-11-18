@@ -24,7 +24,8 @@
 
     - name: Set catalog item name if found
       ansible.builtin.set_stats:
-        catalog_item_name: "{{ catalog_item_name_result.record[0].name | default('Unknown Item') }}"
+        data:
+          catalog_item_name: "{{ catalog_item_name_result.record[0].name | default('Unknown Item') }}"
         # cacheable: true
       when: catalog_item_name_result.record | length > 0
 
