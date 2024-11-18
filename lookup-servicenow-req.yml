@@ -84,7 +84,7 @@
     - name: Consolidate all facts and original event into set_stats
       ansible.builtin.set_stats:
         data:
-          consolidated_facts: >
+          enriched_event: >
             {{
               {
                 'req_sys_id': req_sys_id | default('Unknown Request ID'),
