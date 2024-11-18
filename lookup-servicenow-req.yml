@@ -13,7 +13,6 @@
         sysparm_query: request={{ req_sys_id }}
         display_value: all
         columns: [sys_id, number, description, short_description, cat_item]
-        timeout: 30
       register: ritms
       until: ritms.record is defined and ritms.record | length > 0
       retries: 3
@@ -33,7 +32,6 @@
         resource: sc_item_option_mtom
         sysparm_query: request_itemIN{{ ritm_details | map(attribute='sys_id.value') | join(',') }}
         columns: [sc_item_option]
-        timeout: 30
       register: variable_mappings
       when: ritm_details | length > 0
       until: variable_mappings.record is defined and variable_mappings.record | length > 0
@@ -45,7 +43,6 @@
         resource: sc_item_option
         sysparm_query: "sys_idIN{{ variable_mappings.record | map(attribute='sc_item_option.value') | join(',') }}"
         columns: [item_option_new, value, sys_id]
-        timeout: 30
       register: variable_details
       when: variable_mappings.record | length > 0
 
@@ -54,7 +51,6 @@
         resource: item_option_new
         sysparm_query: "sys_idIN{{ variable_details.record | map(attribute='item_option_new.value') | join(',') }}"
         columns: [sys_id, name]
-        timeout: 30
       register: variable_names
       when: variable_details.record | length > 0
 
