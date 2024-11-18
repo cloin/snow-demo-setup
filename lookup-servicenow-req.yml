@@ -11,28 +11,15 @@
       servicenow.itsm.api_info:
         resource: sc_req_item
         sysparm_query: request={{ req_sys_id }}
-        columns: [sys_id, number, description, short_description]
+        columns: [sys_id, number, description, short_description, cat_item.name]
       register: ritms
 
-    - name: Set RITM details fact
+    - name: Set RITM details fact and catalog item name
       ansible.builtin.set_fact:
         ritm_details: "{{ ritms.record }}"
+        catalog_item_name: "{{ ritms.record[0].cat_item.name | default('Unknown Item') }}"
         cacheable: true
       when: ritms.record | length > 0
-
-    - name: Retrieve catalog item name based on short description
-      servicenow.itsm.api_info:
-        resource: sc_cat_item
-        sysparm_query: "short_description={{ ritm_details[0].short_description }}"
-        columns: [name]
-      register: catalog_item_name_result
-      when: ritm_details | length > 0
-
-    - name: Set catalog item name if found
-      ansible.builtin.set_fact:
-        catalog_item_name: "{{ catalog_item_name_result.record[0].name | default('Unknown Item') }}"
-        cacheable: true
-      when: catalog_item_name_result.record | length > 0
 
     - name: Retrieve sc_item_option IDs for each RITM
       servicenow.itsm.api_info:
