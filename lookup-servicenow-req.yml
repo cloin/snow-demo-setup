@@ -25,6 +25,7 @@
     - name: Set catalog item name if found
       ansible.builtin.set_fact:
         catalog_item_name: "{{ catalog_item_name_result.record[0].name | default('Unknown Item') }}"
+        cacheable: true
       when: catalog_item_name_result.record | length > 0
 
     - name: Retrieve sc_item_option IDs for each RITM
@@ -51,10 +52,12 @@
     - name: Create dictionary of variable names by sys_id
       ansible.builtin.set_fact:
         variable_name_dict: "{{ dict(variable_names.record | map(attribute='sys_id') | zip(variable_names.record | map(attribute='name'))) }}"
+        cacheable: true
 
     - name: Combine variable names and values
       ansible.builtin.set_fact:
         variables: "{{ variables | default([]) + [{'name': variable_name_dict[item.item_option_new.value], 'value': item.value}] }}"
+        cacheable: true
       loop: "{{ variable_details.record }}"
       loop_control:
         label: "{{ item.item_option_new.value }}"
