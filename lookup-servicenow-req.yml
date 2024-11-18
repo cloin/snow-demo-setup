@@ -15,7 +15,7 @@
         columns: [sys_id, number, description, short_description, cat_item]
       register: ritms
 
-    - name: Debug RITMS
+    - name: Debug previous
       ansible.builtin.debug:
         var: ritms
 
@@ -25,6 +25,14 @@
         catalog_item_name: "{{ ritm_details[0].cat_item.display_value | default('Unknown Item') }}"
         cacheable: true
       when: ritms.record | length > 0
+
+    - name: Debug previous
+      ansible.builtin.debug:
+        var: ritm_details
+
+    - name: Debug previous
+      ansible.builtin.debug:
+        var: catalog_item_name
 
     - name: Retrieve sc_item_option IDs for each RITM
       servicenow.itsm.api_info:
