@@ -27,10 +27,6 @@
         ritm_details: "{{ ritms.record }}"
         cacheable: true
 
-    - name: Debug RITM details fact
-      ansible.builtin.debug:
-        var: ritm_details
-
     - name: Retrieve variable mappings with retries
       servicenow.itsm.api_info:
         resource: sc_item_option_mtom
@@ -84,21 +80,38 @@
         var: variable_name_dict
       when: variable_name_dict is defined
 
+    - name: Combine mappings with variable details
+      ansible.builtin.set_fact:
+        variable_combined: >-
+          {{
+            variable_details.record | map(
+              attribute=combine({'request_item': (variable_mappings.record | selectattr('sc_item_option.value', 'equalto', item.sys_id) | map(attribute='request_item.value') | first)})
+            )
+          }}
+      loop: "{{ variable_details.record }}"
+      loop_control:
+        label: "{{ item.sys_id }}"
+      when: variable_details.record | length > 0
+
+    - name: Debug combined variable mappings
+      ansible.builtin.debug:
+        var: variable_combined
+
     - name: Combine variable names and values grouped by RITM
       ansible.builtin.set_fact:
         ritm_variables: >-
           {{
             ritm_variables | default({}) | combine({
-              item.request_item.value: (ritm_variables[item.request_item.value] | default([])) + [{
+              item.request_item: (ritm_variables[item.request_item] | default([])) + [{
                 'name': variable_name_dict[item.item_option_new.value],
                 'value': item.value
               }]
             })
           }}
-      loop: "{{ variable_details.record }}"
+      loop: "{{ variable_combined }}"
       loop_control:
         label: "{{ item.item_option_new.value }}"
-      when: variable_details.record | length > 0
+      when: variable_combined | length > 0
 
     - name: Debug ritm_variables
       ansible.builtin.debug:
