@@ -15,7 +15,7 @@
         columns: [sys_id, number, description, short_description, cat_item]
       register: ritms
 
-    - name: Debug previous
+    - name: Debug RITM details
       ansible.builtin.debug:
         var: ritms
 
@@ -26,18 +26,16 @@
         cacheable: true
       when: ritms.record | length > 0
 
-    - name: Debug previous
+    - name: Debug RITM details fact and catalog item name
       ansible.builtin.debug:
-        var: ritm_details
-
-    - name: Debug previous
-      ansible.builtin.debug:
-        var: catalog_item_name
+        msg:
+          ritm_details: "{{ ritm_details }}"
+          catalog_item_name: "{{ catalog_item_name }}"
 
     - name: Retrieve sc_item_option IDs for each RITM
       servicenow.itsm.api_info:
         resource: sc_item_option_mtom
-        sysparm_query: request_itemIN{{ ritm_details | map(attribute='sys_id') | join(',') }}
+        sysparm_query: request_itemIN{{ ritm_details | map(attribute='sys_id.value') | join(',') }}
         columns: [sc_item_option]
       register: variable_mappings
       when: ritm_details | length > 0
@@ -48,7 +46,7 @@
         sysparm_query: "sys_idIN{{ variable_mappings.record | map(attribute='sc_item_option.value') | join(',') }}"
         columns: [item_option_new, value]
       register: variable_details
-      when: variable_mappings.record | length > 0
+      when: variable_mappings.record is defined and variable_mappings.record | length > 0
 
     - name: Retrieve variable names using item_option_new IDs
       servicenow.itsm.api_info:
@@ -56,7 +54,7 @@
         sysparm_query: "sys_idIN{{ variable_details.record | map(attribute='item_option_new.value') | join(',') }}"
         columns: [sys_id, name]
       register: variable_names
-      when: variable_details.record | length > 0
+      when: variable_details.record is defined and variable_details.record | length > 0
 
     - name: Create dictionary of variable names by sys_id
       ansible.builtin.set_fact:
@@ -71,7 +69,7 @@
       loop: "{{ variable_details.record }}"
       loop_control:
         label: "{{ item.item_option_new.value }}"
-      when: variable_details.record | length > 0
+      when: variable_details.record is defined and variable_details.record | length > 0
 
     - name: Consolidate all facts and original event into set_stats
       ansible.builtin.set_stats:
