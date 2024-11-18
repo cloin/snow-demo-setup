@@ -41,7 +41,6 @@
     - name: Debug variable mappings
       ansible.builtin.debug:
         var: variable_mappings.record
-      when: variable_mappings.record is defined
 
     - name: Retrieve variable details in one query
       servicenow.itsm.api_info:
@@ -54,7 +53,6 @@
     - name: Debug variable details
       ansible.builtin.debug:
         var: variable_details.record
-      when: variable_details.record is defined
 
     - name: Retrieve variable names using item_option_new IDs
       servicenow.itsm.api_info:
@@ -67,7 +65,6 @@
     - name: Debug variable names
       ansible.builtin.debug:
         var: variable_names.record
-      when: variable_names.record is defined
 
     - name: Create dictionary of variable names by sys_id
       ansible.builtin.set_fact:
@@ -78,15 +75,16 @@
     - name: Debug variable name dictionary
       ansible.builtin.debug:
         var: variable_name_dict
-      when: variable_name_dict is defined
 
     - name: Combine mappings with variable details
       ansible.builtin.set_fact:
         variable_combined: >-
           {{
             variable_details.record | map(
-              attribute=combine({'request_item': (variable_mappings.record | selectattr('sc_item_option.value', 'equalto', item.sys_id) | map(attribute='request_item.value') | first)})
-            )
+              'combine', {
+                'request_item': (variable_mappings.record | selectattr('sc_item_option.value', 'equalto', item.sys_id) | map(attribute='request_item.value') | first)
+              }
+            ) | list
           }}
       loop: "{{ variable_details.record }}"
       loop_control:
@@ -96,6 +94,7 @@
     - name: Debug combined variable mappings
       ansible.builtin.debug:
         var: variable_combined
+      when: variable_combined is defined
 
     - name: Combine variable names and values grouped by RITM
       ansible.builtin.set_fact:
