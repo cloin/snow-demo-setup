@@ -96,39 +96,53 @@
         var: variable_combined
       when: variable_combined is defined
 
-    - name: Nest variable names and values directly into RITM details
+    - name: Combine variable names and values grouped by RITM
       ansible.builtin.set_fact:
-        ritm_details: >-
+        ritm_variables: >-
           {{
-            ritm_details | map(
-              'combine', {
-                'variables': (variable_combined | selectattr('request_item', 'equalto', item.sys_id.value) | map(
-                  'combine', {
-                    'name': variable_name_dict[item.item_option_new.value],
-                    'value': item.value
-                  }
-                ) | list) | default([])
-              }
-            ) | list
+            ritm_variables | default({}) | combine({
+              item.request_item: (ritm_variables[item.request_item] | default([])) + [{
+                'name': variable_name_dict[item.item_option_new.value],
+                'value': item.value
+              }]
+            })
           }}
-      loop: "{{ ritm_details }}"
+      loop: "{{ variable_combined }}"
       loop_control:
-        label: "{{ item.sys_id.value }}"
+        label: "{{ item.item_option_new.value }}"
+      when: variable_combined | length > 0
 
-    - name: Debug nested RITM details
+    - name: Debug ritm_variables
       ansible.builtin.debug:
-        var: ritm_details
+        var: ritm_variables
 
-    - name: Build enriched_event structure with nested variables
+    - name: Build enriched_event structure with initial data
       ansible.builtin.set_fact:
         enriched_event: >-
           {{
             {
               'req_sys_id': req_sys_id | default('Unknown Request ID'),
               'ritm_details': ritm_details | default([]),
+              'ritm_variables': ritm_variables | default({}),
               'catalog_item': ritm_details[0].cat_item.display_value | default('Unknown Item')
             }
           }}
+
+    - name: Nest RITM variables into RITM details
+      ansible.builtin.set_fact:
+        enriched_event: >-
+          {{
+            enriched_event | combine({
+              'ritm_details': enriched_event.ritm_details | map(
+                'combine', {
+                  'variables': enriched_event.ritm_variables[item.sys_id.value] | default([])
+                }
+              ) | list
+            })
+          }}
+      loop: "{{ enriched_event.ritm_details }}"
+      loop_control:
+        label: "{{ item.sys_id.value }}"
 
     - name: Debug enriched_event structure
       ansible.builtin.debug:
