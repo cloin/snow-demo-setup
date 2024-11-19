@@ -116,19 +116,17 @@
       ansible.builtin.debug:
         var: ritm_variables
 
-    - name: Consolidate all facts and original event into set_stats
-      ansible.builtin.set_stats:
-        data:
-          enriched_event: >
-            {{
-              {
-                'req_sys_id': req_sys_id | default('Unknown Request ID'),
-                'ritm_details': ritm_details | default([]),
-                'ritm_variables': ritm_variables | default({}),
-                'catalog_item': ritm_details[0].cat_item.display_value | default('Unknown Item')
-              }
-            }}
-          original_event: "{{ ansible_eda.event | default({}) }}"
+    - name: Build enriched_event structure with initial data
+      ansible.builtin.set_fact:
+        enriched_event: >-
+          {{
+            {
+              'req_sys_id': req_sys_id | default('Unknown Request ID'),
+              'ritm_details': ritm_details | default([]),
+              'ritm_variables': ritm_variables | default({}),
+              'catalog_item': ritm_details[0].cat_item.display_value | default('Unknown Item')
+            }
+          }}
 
     - name: Nest RITM variables into RITM details
       ansible.builtin.set_fact:
@@ -146,11 +144,16 @@
       loop_control:
         label: "{{ item.sys_id.value }}"
 
-    - name: Debug nested RITM details
+    - name: Debug enriched_event structure
       ansible.builtin.debug:
-        var: enriched_event.ritm_details
+        var: enriched_event
 
-    - name: Display collected RITM variables grouped by RITM
+    - name: Consolidate all facts and original event into set_stats
+      ansible.builtin.set_stats:
+        data:
+          enriched_event: "{{ enriched_event }}"
+          original_event: "{{ ansible_eda.event | default({}) }}"
+
+    - name: Display consolidated enriched_event
       ansible.builtin.debug:
-        msg:
-          ritm_details: "{{ enriched_event.ritm_details }}"
+        var: enriched_event
