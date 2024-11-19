@@ -123,6 +123,7 @@
             {
               'req_sys_id': req_sys_id | default('Unknown Request ID'),
               'ritm_details': ritm_details | default([]),
+              'ritm_variables': ritm_variables | default({}),
               'catalog_item': ritm_details[0].cat_item.display_value | default('Unknown Item')
             }
           }}
