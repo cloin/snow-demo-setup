@@ -114,7 +114,6 @@
       loop: "{{ ritm_details }}"
       loop_control:
         label: "{{ item.sys_id.value }}"
-      when: variable_combined | length > 0
 
     - name: Debug nested RITM details
       ansible.builtin.debug:
