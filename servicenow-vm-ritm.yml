@@ -7,7 +7,10 @@
         action: patch
         sys_id: "{{ ansible_eda.event.enriched_event.ritm_details[0].sys_id.value }}" 
         data:
-          comments: "Updated comments via Ansible"
+          comments: |
+            Comment published by Ansible Automation Platform
+            Request item variables from event received:
+            {{ ansible_eda.event.enriched_event.ritm_details[0].variables }}
       register: update_result
 
     - name: Display the result
