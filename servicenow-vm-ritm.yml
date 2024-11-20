@@ -1,0 +1,15 @@
+- name: Called in response to VM ordered
+  hosts: localhost
+  tasks:
+    - name: Update the comments field on a specific RITM
+      servicenow.itsm.api:
+        resource: sc_req_item 
+        action: patch
+        sys_id: "{{ ansible_eda.event.enriched_event.ritm_details[0].sys_id.value }}" 
+        data:
+          comments: "Updated comments via Ansible"
+      register: update_result
+
+    - name: Display the result
+      debug:
+        var: update_result
