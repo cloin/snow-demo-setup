@@ -18,10 +18,6 @@
       retries: 3
       delay: 5
 
-    - name: Debug RITM details
-      ansible.builtin.debug:
-        var: ritms
-
     - name: Set RITM details fact
       ansible.builtin.set_fact:
         ritm_details: "{{ ritms.record }}"
@@ -38,10 +34,6 @@
       retries: 3
       delay: 5
 
-    - name: Debug variable mappings
-      ansible.builtin.debug:
-        var: variable_mappings.record
-
     - name: Retrieve variable details in one query
       servicenow.itsm.api_info:
         resource: sc_item_option
@@ -49,10 +41,6 @@
         columns: [item_option_new, value, sys_id]
       register: variable_details
       when: variable_mappings.record | length > 0
-
-    - name: Debug variable details
-      ansible.builtin.debug:
-        var: variable_details.record
 
     - name: Retrieve variable names using item_option_new IDs
       servicenow.itsm.api_info:
@@ -62,19 +50,11 @@
       register: variable_names
       when: variable_details.record | length > 0
 
-    - name: Debug variable names
-      ansible.builtin.debug:
-        var: variable_names.record
-
     - name: Create dictionary of variable names by sys_id
       ansible.builtin.set_fact:
         variable_name_dict: "{{ dict(variable_names.record | map(attribute='sys_id') | zip(variable_names.record | map(attribute='name'))) }}"
         cacheable: true
       when: variable_names.record | length > 0
-
-    - name: Debug variable name dictionary
-      ansible.builtin.debug:
-        var: variable_name_dict
 
     - name: Combine mappings with variable details
       ansible.builtin.set_fact:
@@ -90,11 +70,6 @@
       loop_control:
         label: "{{ item.sys_id }}"
       when: variable_details.record | length > 0
-
-    - name: Debug combined variable mappings
-      ansible.builtin.debug:
-        var: variable_combined
-      when: variable_combined is defined
 
     - name: Combine variable names and values grouped by RITM
       ansible.builtin.set_fact:
@@ -112,10 +87,6 @@
         label: "{{ item.item_option_new.value }}"
       when: variable_combined | length > 0
 
-    - name: Debug ritm_variables
-      ansible.builtin.debug:
-        var: ritm_variables
-
     - name: Build enriched_event structure with initial data
       ansible.builtin.set_fact:
         enriched_event: >-
@@ -124,7 +95,6 @@
               'req_sys_id': req_sys_id | default('Unknown Request ID'),
               'ritm_details': ritm_details | default([]),
               'ritm_variables': ritm_variables | default({}),
-              'catalog_item': ritm_details[0].cat_item.display_value | default('Unknown Item')
             }
           }}
 
@@ -143,10 +113,6 @@
       loop: "{{ enriched_event.ritm_details }}"
       loop_control:
         label: "{{ item.sys_id.value }}"
-
-    - name: Debug enriched_event structure
-      ansible.builtin.debug:
-        var: enriched_event
 
     - name: Consolidate all facts and original event into set_stats
       ansible.builtin.set_stats:
