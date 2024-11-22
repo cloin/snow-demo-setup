@@ -34,7 +34,7 @@
       retries: 3
       delay: 5
 
-    - name: Retrieve variable details in one query
+    - name: Retrieve variable details
       servicenow.itsm.api_info:
         resource: sc_item_option
         sysparm_query: "sys_idIN{{ variable_mappings.record | map(attribute='sc_item_option.value') | join(',') }}"
